@@ -4,9 +4,49 @@ import Foundation
 final class JobQueue: ObservableObject {
     static let shared = JobQueue()
 
+    /// Whisper language options: (ISO-639-1 code, display name).
+    /// "auto" lets Whisper detect; forcing a language avoids misdetection
+    /// on short clips (e.g. Urdu heard as Hindi).
+    static let languages: [(code: String, name: String)] = [
+        ("auto", "Auto-detect"),
+        ("ur", "Urdu"),
+        ("en", "English"),
+        ("ar", "Arabic"),
+        ("bn", "Bengali"),
+        ("zh", "Chinese"),
+        ("fr", "French"),
+        ("de", "German"),
+        ("hi", "Hindi"),
+        ("id", "Indonesian"),
+        ("it", "Italian"),
+        ("ja", "Japanese"),
+        ("ko", "Korean"),
+        ("fa", "Persian"),
+        ("pt", "Portuguese"),
+        ("pa", "Punjabi"),
+        ("ps", "Pashto"),
+        ("ru", "Russian"),
+        ("es", "Spanish"),
+        ("tr", "Turkish"),
+    ]
+
     @Published var jobs: [TranscriptionJob] = []
-    @Published var translateToEnglish = true
+    @Published var translateToEnglish: Bool {
+        didSet { UserDefaults.standard.set(translateToEnglish, forKey: "translateToEnglish") }
+    }
+    @Published var languageCode: String {
+        didSet { UserDefaults.standard.set(languageCode, forKey: "languageCode") }
+    }
     @Published var notice: String?
+
+    init() {
+        let defaults = UserDefaults.standard
+        translateToEnglish =
+            defaults.object(forKey: "translateToEnglish") as? Bool ?? true
+        let saved = defaults.string(forKey: "languageCode") ?? "auto"
+        languageCode =
+            Self.languages.contains { $0.code == saved } ? saved : "auto"
+    }
 
     private var isProcessing = false
     private var noticeClearTask: Task<Void, Never>?
@@ -104,6 +144,7 @@ final class JobQueue: ObservableObject {
 
         let job = jobs[index]
         let translate = translateToEnglish
+        let language = languageCode
         // Conversion is sub-second; whisper dominates, so show one active state.
         jobs[index].status = .transcribing
 
@@ -112,7 +153,8 @@ final class JobQueue: ObservableObject {
                 () -> Result<String, Error> in
                 do {
                     return .success(
-                        try WhisperEngine.transcribe(job.sourceURL, translateToEnglish: translate))
+                        try WhisperEngine.transcribe(
+                            job.sourceURL, translateToEnglish: translate, language: language))
                 } catch {
                     return .failure(error)
                 }

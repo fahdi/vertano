@@ -79,8 +79,11 @@ struct WhisperEngine: Sendable {
     static var ffmpegPath: String? { findBinary("ffmpeg") }
 
     /// Convert any audio/video input to 16 kHz mono PCM WAV, then transcribe it.
+    /// `language` is a Whisper ISO-639-1 code, or "auto" to detect.
     /// Blocking; call off the main thread.
-    static func transcribe(_ source: URL, translateToEnglish: Bool) throws -> String {
+    static func transcribe(
+        _ source: URL, translateToEnglish: Bool, language: String = "auto"
+    ) throws -> String {
         guard let whisper = whisperPath else { throw EngineError.whisperNotFound }
         guard let ffmpeg = ffmpegPath else { throw EngineError.ffmpegNotFound }
         guard modelIsReady else { throw EngineError.modelMissing }
@@ -105,7 +108,7 @@ struct WhisperEngine: Sendable {
         var args = [
             "-m", modelPath.path,
             "-f", wav.path,
-            "-l", "auto",
+            "-l", language,
             "-otxt", "-of", outBase.path,
             "-np",
         ]

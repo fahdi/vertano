@@ -43,6 +43,14 @@ struct ContentView: View {
             Label("VibeTranscribe", systemImage: "waveform")
                 .font(.headline)
             Spacer()
+            Picker("Language", selection: $queue.languageCode) {
+                ForEach(JobQueue.languages, id: \.code) { language in
+                    Text(language.name).tag(language.code)
+                }
+            }
+            .pickerStyle(.menu)
+            .fixedSize()
+            .help("Spoken language of the audio. Auto-detect works well; force it if short clips get misidentified.")
             Toggle("Translate to English", isOn: $queue.translateToEnglish)
                 .toggleStyle(.switch)
                 .controlSize(.small)

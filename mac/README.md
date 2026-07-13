@@ -9,6 +9,9 @@ saved as `.txt` next to each source file and are also viewable/copyable in the a
   with auto-detection.
 - **Translate to English** toggle (default on). Turn it off to keep the transcript
   in the spoken language.
+- **Language picker** (default Auto-detect). Force the spoken language when
+  auto-detection misfires on short clips — e.g. Urdu heard as Hindi. Both this
+  and the translate toggle persist across launches.
 - **Inputs:** wav, mp3, m4a, aac, flac, ogg/oga, opus, aiff, caf, amr, wma — plus
   video containers (mp4, mov, m4v, webm, mkv), from which the audio track is used.
   Everything is normalized to 16 kHz mono WAV via ffmpeg before transcription.
