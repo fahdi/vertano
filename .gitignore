@@ -41,7 +41,7 @@ htmlcov/
 # Project specific - exclude JS app files
 src/
 public/
-index.html
+/index.html
 package*.json
 tsconfig*.json
 vite.config.ts
