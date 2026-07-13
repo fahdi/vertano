@@ -3,7 +3,7 @@
 # Mirrors WhisperEngine's exact pipeline (ffmpeg 16kHz mono wav -> whisper-cli).
 set -euo pipefail
 
-MODEL="$HOME/Library/Application Support/VibeTranscribe/models/ggml-small.bin"
+MODEL="$HOME/Library/Application Support/StenoDrop/models/ggml-small.bin"
 WHISPER="$(command -v whisper-cli || echo /opt/homebrew/bin/whisper-cli)"
 FFMPEG="$(command -v ffmpeg || echo /opt/homebrew/bin/ffmpeg)"
 
@@ -11,11 +11,11 @@ FFMPEG="$(command -v ffmpeg || echo /opt/homebrew/bin/ffmpeg)"
 [[ -x "$FFMPEG" ]] || { echo "FAIL: ffmpeg not found (brew install ffmpeg)"; exit 1; }
 [[ -f "$MODEL" ]] || { echo "FAIL: model missing at $MODEL"; exit 1; }
 
-WORK="$(mktemp -d /tmp/vibetranscribe-e2e.XXXXXX)"
+WORK="$(mktemp -d /tmp/stenodrop-e2e.XXXXXX)"
 trap 'rm -rf "$WORK"' EXIT
 
 echo "1/3 Synthesizing test speech..."
-say -o "$WORK/speech.aiff" "The quick brown fox jumps over the lazy dog. This is a VibeTranscribe engine test."
+say -o "$WORK/speech.aiff" "The quick brown fox jumps over the lazy dog. This is a StenoDrop engine test."
 # Route through m4a to also cover the compressed-input path the app handles via ffmpeg.
 "$FFMPEG" -y -hide_banner -loglevel error -i "$WORK/speech.aiff" -c:a aac "$WORK/speech.m4a"
 

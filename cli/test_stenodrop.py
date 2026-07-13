@@ -1,5 +1,5 @@
 """
-Test suite for VibeTranscribe CLI
+Test suite for StenoDrop CLI
 Tests transcription, summarization, and file I/O
 """
 
@@ -111,7 +111,7 @@ class TestTranscription:
         """Test that test audio file exists"""
         assert os.path.exists(test_audio_file), f"Test audio file not found: {test_audio_file}"
     
-    @patch('vibetranscribe.pipeline')
+    @patch('stenodrop.pipeline')
     def test_transcribe_with_mock(self, mock_pipeline, test_audio_file):
         """Test transcription with mocked Whisper"""
         # Mock the pipeline
@@ -120,7 +120,7 @@ class TestTranscription:
         mock_pipeline.return_value = mock_pipe
         
         # Import after patching
-        from vibetranscribe import transcribe_audio
+        from stenodrop import transcribe_audio
         
         result = transcribe_audio(test_audio_file, model_size="tiny")
         
@@ -130,7 +130,7 @@ class TestTranscription:
     
     def test_transcribe_nonexistent_file(self):
         """Test error handling for missing file"""
-        from vibetranscribe import transcribe_audio
+        from stenodrop import transcribe_audio
         
         with pytest.raises(Exception):
             transcribe_audio("nonexistent.mp3", model_size="tiny")
@@ -179,7 +179,7 @@ class TestCLIIntegration:
         if not os.path.exists(real_audio_file):
             pytest.skip("Test audio file not found")
         
-        from vibetranscribe import transcribe_audio
+        from stenodrop import transcribe_audio
         
         # This will actually run Whisper - mark as slow test
         result = transcribe_audio(real_audio_file, model_size="tiny")
@@ -193,14 +193,14 @@ class TestCLIIntegration:
         import subprocess
         
         result = subprocess.run(
-            ["python", "vibetranscribe.py", "--help"],
+            ["python", "stenodrop.py", "--help"],
             capture_output=True,
             text=True,
             cwd=os.path.dirname(__file__)
         )
         
         assert result.returncode == 0
-        assert "usage:" in result.stdout.lower() or "vibetranscribe" in result.stdout.lower()
+        assert "usage:" in result.stdout.lower() or "stenodrop" in result.stdout.lower()
 
 
 class TestErrorHandling:
@@ -210,7 +210,7 @@ class TestErrorHandling:
         """Test that invalid model size is handled"""
         # The argparse should handle this, but we can test the function directly
         with pytest.raises(Exception):
-            from vibetranscribe import transcribe_audio
+            from stenodrop import transcribe_audio
             transcribe_audio("test.mp3", model_size="invalid_model")
     
     def test_invalid_summary_length(self, mocker):
@@ -272,7 +272,7 @@ class TestGeneratedSamples:
         if not os.path.exists(filepath):
             pytest.skip(f"{language} sample not found")
         
-        from vibetranscribe import transcribe_audio
+        from stenodrop import transcribe_audio
         
         result = transcribe_audio(filepath, model_size="tiny")
         

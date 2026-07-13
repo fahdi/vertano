@@ -1,4 +1,4 @@
-# VibeTrans cribe CLI
+# StenoDrop
 
 > Transcribe audio in **any language** → Get clean **English text** + **AI-powered summaries**
 
@@ -14,7 +14,7 @@ translate-to-English toggle. Transcripts are saved as `.txt` next to each audio 
 
 ```bash
 brew install whisper-cpp ffmpeg
-cd mac && ./scripts/make-app.sh   # → dist/VibeTranscribe.app
+cd mac && ./scripts/make-app.sh   # → dist/StenoDrop.app
 ```
 
 See [mac/README.md](mac/README.md) for details.
@@ -38,8 +38,8 @@ See [mac/README.md](mac/README.md) for details.
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/vibetranscribe.git
-cd vibetranscribe/cli
+git clone https://github.com/YOUR_USERNAME/stenodrop.git
+cd stenodrop/cli
 
 # Create virtual environment
 python3 -m venv venv
@@ -53,11 +53,11 @@ pip install -r requirements.txt
 
 ```bash
 # Transcribe + translate to English
-python vibetranscribe.py audio.mp3 --no-summarize
+python stenodrop.py audio.mp3 --no-summarize
 
 # With AI summary (requires OpenAI API key)
 export OPENAI_API_KEY="sk-your-key-here"
-python vibetranscribe.py audio.mp3 --summary short
+python stenodrop.py audio.mp3 --summary short
 ```
 
 ---
@@ -66,7 +66,7 @@ python vibetranscribe.py audio.mp3 --summary short
 
 ### Example 1: Urdu → English
 ```bash
-python vibetranscribe.py recording.wav --no-summarize
+python stenodrop.py recording.wav --no-summarize
 ```
 
 **Result:**
@@ -74,7 +74,7 @@ python vibetranscribe.py recording.wav --no-summarize
 
 ### Example 2: Spanish Meeting → Summary
 ```bash
-python vibetranscribe.py meeting.m4a --summary medium --format md --output result.md
+python stenodrop.py meeting.m4a --summary medium --format md --output result.md
 ```
 
 ---
@@ -84,7 +84,7 @@ python vibetranscribe.py meeting.m4a --summary medium --format md --output resul
 ### Command Options
 
 ```bash
-python vibetranscribe.py <audio_file> [OPTIONS]
+python stenodrop.py <audio_file> [OPTIONS]
 ```
 
 **Required:**
@@ -134,10 +134,10 @@ See [cli/TESTING.md](cli/TESTING.md) for details.
 
 ```
 cli/
-├── vibetranscribe.py       # Main CLI tool ⭐
+├── stenodrop.py       # Main CLI tool ⭐
 ├── summarize.py            # AI summarization
 ├── generate_test_samples.py # Test audio generator
-├── test_vibetranscribe.py  # Test suite
+├── test_stenodrop.py  # Test suite
 ├── requirements.txt        # Dependencies
 ├── TESTING.md             # Test documentation
 └── USAGE.md               # Detailed usage guide
@@ -159,7 +159,7 @@ To enable AI-powered summaries:
    ```
 3. Run with summary:
    ```bash
-   python vibetranscribe.py audio.mp3 --summary short
+   python stenodrop.py audio.mp3 --summary short
    ```
 
 **What you get:**

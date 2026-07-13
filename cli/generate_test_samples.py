@@ -69,9 +69,9 @@ def generate_samples(output_dir="../test-audio/generated"):
     print(f"\n✨ Generated {len(TEST_SAMPLES)} test samples!")
     print(f"📁 Location: {output_dir}")
     print("\nYou can now test with:")
-    print(f"  python vibetranscribe.py {output_dir}/english.mp3")
-    print(f"  python vibetranscribe.py {output_dir}/spanish.mp3 --summary medium")
-    print(f"  python vibetranscribe.py {output_dir}/meeting_notes.mp3 --format md")
+    print(f"  python stenodrop.py {output_dir}/english.mp3")
+    print(f"  python stenodrop.py {output_dir}/spanish.mp3 --summary medium")
+    print(f"  python stenodrop.py {output_dir}/meeting_notes.mp3 --format md")
 
 if __name__ == "__main__":
     generate_samples()

@@ -1,4 +1,4 @@
-# VibeTranscribe CLI - Complete Usage Guide
+# StenoDrop CLI - Complete Usage Guide
 
 ## What You Have Now ✅
 
@@ -24,7 +24,7 @@ A fully working CLI tool that:
 ```bash
 cd cli
 source venv/bin/activate
-python vibetranscribe.py audio.mp3 --no-summarize
+python stenodrop.py audio.mp3 --no-summarize
 ```
 
 ### With AI Summary (requires OpenAI API key)
@@ -33,12 +33,12 @@ python vibetranscribe.py audio.mp3 --no-summarize
 export OPENAI_API_KEY="sk-your-key-here"
 
 # Run with summary
-python vibetranscribe.py audio.mp3 --summary short
+python stenodrop.py audio.mp3 --summary short
 ```
 
 ### All Options
 ```bash
-python vibetranscribe.py audio.mp3 \
+python stenodrop.py audio.mp3 \
   --model small \              # Model size: tiny, base, small, medium, large-v2
   --summary medium \           # Summary length: short, medium, long
   --format md \                # Output format: text, md, markdown
@@ -58,7 +58,7 @@ export OPENAI_API_KEY="sk-your-key-here"
 
 Or pass it directly:
 ```bash
-python vibetranscribe.py audio.mp3 --api-key "sk-your-key-here"
+python stenodrop.py audio.mp3 --api-key "sk-your-key-here"
 ```
 
 ---

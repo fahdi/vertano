@@ -40,7 +40,7 @@ struct ContentView: View {
 
     private var toolbar: some View {
         HStack(spacing: 16) {
-            Label("VibeTranscribe", systemImage: "waveform")
+            Label("StenoDrop", systemImage: "waveform")
                 .font(.headline)
             Spacer()
             Picker("Language", selection: $queue.languageCode) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VibeTranscribe - Quick prototype
+StenoDrop - Quick prototype
 Transcribe audio in any language to English
 """
 
@@ -53,7 +53,7 @@ def transcribe_audio(audio_path, model_size="base", translate=True):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="VibeTranscribe - Transcribe audio to English")
+    parser = argparse.ArgumentParser(description="StenoDrop - Transcribe audio to English")
     parser.add_argument("audio_file", help="Path to audio file")
     parser.add_argument("--model", default="base", choices=["tiny", "base", "small", "medium", "large-v2"],
                         help="Whisper model size (default: base)")

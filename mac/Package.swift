@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "VibeTranscribe",
+    name: "StenoDrop",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "VibeTranscribe",
-            path: "Sources/VibeTranscribe"
+            name: "StenoDrop",
+            path: "Sources/StenoDrop"
         )
     ]
 )

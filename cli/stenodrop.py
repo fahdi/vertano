@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VibeTranscribe - Complete CLI
+StenoDrop - Complete CLI
 Transcribe audio in any language → English transcription + AI summary
 """
 
@@ -46,14 +46,14 @@ def transcribe_audio(audio_path, model_size="small"):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="VibeTranscribe - Transcribe audio in any language to English with AI summary",
+        description="StenoDrop - Transcribe audio in any language to English with AI summary",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  vibetranscribe audio.mp3
-  vibetranscribe meeting.m4a --summary medium --format md
-  vibetranscribe lecture.wav --no-summarize --output transcript.txt
-  vibetranscribe audio.mp3 --model base --summary short
+  stenodrop audio.mp3
+  stenodrop meeting.m4a --summary medium --format md
+  stenodrop lecture.wav --no-summarize --output transcript.txt
+  stenodrop audio.mp3 --model base --summary short
         """
     )
     

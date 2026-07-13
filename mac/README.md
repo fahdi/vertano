@@ -1,4 +1,4 @@
-# VibeTranscribe (Mac App)
+# StenoDrop (Mac App)
 
 Native macOS app for batch audio transcription. Drag in files or folders and every
 audio file gets transcribed locally — offline, free, no API keys. Transcripts are
@@ -28,7 +28,7 @@ brew install whisper-cpp ffmpeg
 
 The Whisper model is not bundled. On first launch the app shows a setup screen
 that checks for both tools and offers a one-click model download (to
-`~/Library/Application Support/VibeTranscribe/models/ggml-small.bin`).
+`~/Library/Application Support/StenoDrop/models/ggml-small.bin`).
 
 ## Development
 
@@ -47,11 +47,11 @@ cd mac
 ./scripts/make-app.sh
 ```
 
-This builds a release binary, wraps it as `dist/VibeTranscribe.app`, and ad-hoc
+This builds a release binary, wraps it as `dist/StenoDrop.app`, and ad-hoc
 signs it for local use (no notarization). Install it with:
 
 ```bash
-cp -R dist/VibeTranscribe.app /Applications/
+cp -R dist/StenoDrop.app /Applications/
 ```
 
 ## Notes

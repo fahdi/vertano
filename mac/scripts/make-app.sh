@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Build VibeTranscribe.app from the Swift package.
+# Build StenoDrop.app from the Swift package.
 # Usage: ./scripts/make-app.sh [output-dir]   (default: mac/dist)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 OUT_DIR="${1:-dist}"
-APP="$OUT_DIR/VibeTranscribe.app"
+APP="$OUT_DIR/StenoDrop.app"
 
 echo "Building release binary..."
 swift build -c release
 
-BIN=".build/release/VibeTranscribe"
+BIN=".build/release/StenoDrop"
 [[ -x "$BIN" ]] || { echo "Build product not found: $BIN"; exit 1; }
 
 echo "Assembling $APP"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$BIN" "$APP/Contents/MacOS/VibeTranscribe"
+cp "$BIN" "$APP/Contents/MacOS/StenoDrop"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -24,13 +24,13 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>VibeTranscribe</string>
+    <string>StenoDrop</string>
     <key>CFBundleIdentifier</key>
-    <string>com.fahdi.vibetranscribe</string>
+    <string>com.fahdi.stenodrop</string>
     <key>CFBundleName</key>
-    <string>VibeTranscribe</string>
+    <string>StenoDrop</string>
     <key>CFBundleDisplayName</key>
-    <string>VibeTranscribe</string>
+    <string>StenoDrop</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

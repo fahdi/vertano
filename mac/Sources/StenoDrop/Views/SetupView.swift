@@ -14,7 +14,7 @@ struct SetupView: View {
                 Image(systemName: "waveform.badge.magnifyingglass")
                     .font(.system(size: 40))
                     .foregroundStyle(.tint)
-                Text("VibeTranscribe Setup")
+                Text("StenoDrop Setup")
                     .font(.title2.bold())
                 Text("Two free tools and one model — everything runs on your Mac.")
                     .foregroundStyle(.secondary)

@@ -1,4 +1,4 @@
-# VibeTranscribe - Test Results & Demo
+# StenoDrop - Test Results & Demo
 
 ## 🎉 What Was Built
 
@@ -57,13 +57,13 @@ cd cli
 source venv/bin/activate
 
 # Transcribe + translate to English
-python vibetranscribe.py ../test-audio/REC001.WAV --no-summarize
+python stenodrop.py ../test-audio/REC001.WAV --no-summarize
 
 # Test with Spanish
-python vibetranscribe.py ../test-audio/generated/spanish.mp3 --no-summarize
+python stenodrop.py ../test-audio/generated/spanish.mp3 --no-summarize
 
 # Save to file
-python vibetranscribe.py audio.mp3 --no-summarize --output result.txt
+python stenodrop.py audio.mp3 --no-summarize --output result.txt
 ```
 
 ### With AI Summary (Requires OpenAI API Key)
@@ -71,10 +71,10 @@ python vibetranscribe.py audio.mp3 --no-summarize --output result.txt
 export OPENAI_API_KEY="sk-your-key-here"
 
 # Short summary
-python vibetranscribe.py audio.mp3 --summary short
+python stenodrop.py audio.mp3 --summary short
 
 # Medium summary with markdown
-python vibetranscribe.py audio.mp3 --summary medium --format md --output result.md
+python stenodrop.py audio.mp3 --summary medium --format md --output result.md
 ```
 
 ---
@@ -106,7 +106,7 @@ python vibetranscribe.py audio.mp3 --summary medium --format md --output result.
 ### To Enable Full Features:
 1. Get OpenAI API key: https://platform.openai.com/api-keys
 2. Set environment variable: `export OPENAI_API_KEY="sk-..."`
-3. Run with summary: `python vibetranscribe.py audio.mp3 --summary short`
+3. Run with summary: `python stenodrop.py audio.mp3 --summary short`
 
 ### To Test More Samples:
 ```bash
@@ -114,8 +114,8 @@ python vibetranscribe.py audio.mp3 --summary medium --format md --output result.
 python generate_test_samples.py
 
 # Test each language
-python vibetranscribe.py ../test-audio/generated/french.mp3
-python vibetranscribe.py ../test-audio/generated/japanese.mp3
+python stenodrop.py ../test-audio/generated/french.mp3
+python stenodrop.py ../test-audio/generated/japanese.mp3
 ```
 
 ---
@@ -124,7 +124,7 @@ python vibetranscribe.py ../test-audio/generated/japanese.mp3
 
 ```
 cli/
-├── vibetranscribe.py       # Main CLI tool ⭐
+├── stenodrop.py       # Main CLI tool ⭐
 ├── summarize.py            # AI summarization module
 ├── transcribe_v2.py        # Basic transcription
 ├── generate_test_samples.py # Test audio generator

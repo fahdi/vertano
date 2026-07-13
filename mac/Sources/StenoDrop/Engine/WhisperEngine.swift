@@ -32,11 +32,23 @@ struct WhisperEngine: Sendable {
 
     static var modelsDirectory: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("VibeTranscribe/models", isDirectory: true)
+            .appendingPathComponent("StenoDrop/models", isDirectory: true)
     }
 
     static var modelPath: URL {
         modelsDirectory.appendingPathComponent("ggml-small.bin")
+    }
+
+    /// One-time migration from the app's pre-rename identity, so existing
+    /// installs don't re-download 466 MB.
+    static func migrateLegacyModelIfNeeded() {
+        let fm = FileManager.default
+        let legacy = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("VibeTranscribe/models/ggml-small.bin")
+        guard fm.fileExists(atPath: legacy.path), !fm.fileExists(atPath: modelPath.path)
+        else { return }
+        try? fm.createDirectory(at: modelsDirectory, withIntermediateDirectories: true)
+        try? fm.moveItem(at: legacy, to: modelPath)
     }
 
     /// The small model is ~466 MB; anything under 400 MB is a partial download.
@@ -89,7 +101,7 @@ struct WhisperEngine: Sendable {
         guard modelIsReady else { throw EngineError.modelMissing }
 
         let workDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("vibetranscribe-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("stenodrop-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: workDir) }
 

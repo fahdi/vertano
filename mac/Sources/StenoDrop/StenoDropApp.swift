@@ -31,12 +31,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct VibeTranscribeApp: App {
+struct StenoDropApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var queue = JobQueue.shared
 
+    init() {
+        // Before any view reads modelIsReady, so existing installs don't
+        // re-download 466 MB under the new app identity.
+        WhisperEngine.migrateLegacyModelIfNeeded()
+    }
+
     var body: some Scene {
-        WindowGroup("VibeTranscribe") {
+        WindowGroup("StenoDrop") {
             RootView()
                 .environmentObject(queue)
                 .frame(minWidth: 560, minHeight: 480)

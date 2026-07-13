@@ -1,4 +1,4 @@
-# VibeTranscribe CLI Prototype
+# StenoDrop CLI Prototype
 
 ## Quick Start
 

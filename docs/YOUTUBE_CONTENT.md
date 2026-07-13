@@ -202,6 +202,29 @@ productivity tools
 
 ---
 
+# Short-Form Content Strategy (Shorts/TikTok/Reels)
+
+## 🎥 Vertical Thumbnail (9:16)
+![VibeTranscribe Vertical Thumbnail](file:///Users/isupercoder/.gemini/antigravity/brain/720c9b92-a55e-46aa-a5d1-cbefe2db27f9/vibetranscribe_shorts_thumbnail_9_16_*.png)
+
+## 🪝 Viral Hook Ideas (First 3 Seconds)
+1. **The 'Sleeping Baby' Hook:** *(Whispering)* "The baby is finally asleep. Most people are sleeping. But I have $430 and a plan to hit a million dollars. Day 001 starts now."
+2. **The 'Urdu to English' Magic:** "Watch this. I record a voice note in Urdu, and AI turns it into a perfect English summary. Built it in under 3 hours while my baby was napping."
+3. **The 'Zero to Million' POV:** "POV: You're starting a coding series with $430 in the bank and documenting everything until it hits $1,000,000."
+
+## ✂️ 3 Key 'Shorts' to Extract from the 1.5h Session
+| Segment | Content | Why it works |
+|---------|---------|--------------|
+| **The Setup** | $430 balance reveal + the "Baby is asleep" vibe. | Establishes the personal brand and context. |
+| **The Demo** | Running `REC007.WAV` and seeing the Urdu → English translation. | High "Aha!" moment and visual payoff. |
+| **The Code** | A fast-paced timelaps with a voiceover: "I used Whisper and GPT-4 to build this." | Shows technical authority and speed. |
+
+## 🎧 Audio Strategy
+- Use trending 'chill' lo-fi beats (matching the 'Vibe Coding' theme).
+- Keep your whispers or quiet talk if the baby is nearby; it adds to the authenticity.
+
+---
+
 ## Social Media Captions
 
 ### Twitter/X
