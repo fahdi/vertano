@@ -71,9 +71,11 @@ jobs:
           path: assets
           merge-multiple: true
       - name: Checksums
-        run: cd assets && sha256sum * > SHA256SUMS.txt
+        run: |
+          cd assets
+          find . -type f -exec sha256sum {} \; | sed 's| \./| |' > SHA256SUMS.txt
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: assets/*
+          files: assets/**
           generate_release_notes: true
