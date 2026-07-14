@@ -150,20 +150,26 @@ h1 .drop{color:var(--stamp);font-style:italic}
 
 /* ---------- tape ribbon divider ---------- */
 .ribbon{
-  height:44px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
-  background:
-    radial-gradient(circle 4px at 12px 10px, var(--paper) 4px, transparent 5px),
-    radial-gradient(circle 4px at 12px 34px, var(--paper) 4px, transparent 5px),
-    var(--tape);
-  background-size:36px 44px;background-repeat:repeat-x;
-  position:relative;overflow:hidden;
+  border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  background:var(--tape);overflow:hidden;padding:12px 0;
 }
-.ribbon span{
-  position:absolute;white-space:nowrap;font-family:var(--mono);font-size:12px;letter-spacing:.35em;
-  text-transform:uppercase;color:var(--dim);top:50%;transform:translateY(-50%);
-  animation:ticker 28s linear infinite;
+.ribbon-track{
+  display:flex;align-items:center;gap:12px;width:max-content;
+  animation:ticker 80s linear infinite;
 }
-@keyframes ticker{from{left:100%}to{left:-100%}}
+.ribbon:hover .ribbon-track{animation-play-state:paused}
+.ribbon-set{display:flex;align-items:center;gap:12px;padding-right:12px}
+.chip{
+  font-family:var(--mono);font-style:normal;font-weight:600;font-size:13px;
+  letter-spacing:.06em;color:var(--ink-soft);
+  border:1.5px solid var(--ink-soft);border-radius:4px;padding:4px 12px;
+  background:var(--paper);white-space:nowrap;
+}
+.chip-note{
+  font-family:var(--mono);font-style:normal;font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--stamp);white-space:nowrap;padding:0 14px;font-weight:600;
+}
+@keyframes ticker{to{transform:translateX(-50%)}}
 
 /* ---------- sections ---------- */
 section{padding:96px 0}
@@ -248,7 +254,8 @@ footer{border-top:2px solid var(--ink);padding:38px 0 56px;margin-top:40px}
 .rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){
   .rv{opacity:1;transform:none;transition:none}
-  .ribbon span{animation:none;left:28px}
+  .ribbon-track{animation:none;width:auto;flex-wrap:wrap;justify-content:center;padding:0 20px}
+  .ribbon-set:nth-child(2){display:none}
   .tb-line .caret{animation:none}
 }
 </style>
@@ -299,7 +306,18 @@ footer{border-top:2px solid var(--ink);padding:38px 0 56px;margin-top:40px}
   </div>
 </div>
 
-<div class="ribbon" aria-hidden="true"><span>wav · mp3 · m4a · flac · ogg · opus · aiff · caf · mp4 · mov · webm · &nbsp; 100 languages · translate to english · runs on metal · wav · mp3 · m4a · flac</span></div>
+<div class="ribbon" aria-label="Supported formats: wav, mp3, m4a, flac, ogg, opus, aiff, caf, voice memos, mp4, mov, webm">
+  <div class="ribbon-track">
+    <div class="ribbon-set">
+      <i class="chip">WAV</i><i class="chip">MP3</i><i class="chip">M4A</i><i class="chip">FLAC</i><i class="chip">OGG</i><i class="chip">OPUS</i><i class="chip">AIFF</i><i class="chip">CAF</i><i class="chip">VOICE MEMOS</i><i class="chip">MP4</i><i class="chip">MOV</i><i class="chip">WEBM</i>
+      <i class="chip-note">100 languages · translate to English · runs on Metal</i>
+    </div>
+    <div class="ribbon-set" aria-hidden="true">
+      <i class="chip">WAV</i><i class="chip">MP3</i><i class="chip">M4A</i><i class="chip">FLAC</i><i class="chip">OGG</i><i class="chip">OPUS</i><i class="chip">AIFF</i><i class="chip">CAF</i><i class="chip">VOICE MEMOS</i><i class="chip">MP4</i><i class="chip">MOV</i><i class="chip">WEBM</i>
+      <i class="chip-note">100 languages · translate to English · runs on Metal</i>
+    </div>
+  </div>
+</div>
 
 <div class="wrap">
 <section id="how">
