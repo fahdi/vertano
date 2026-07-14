@@ -12,6 +12,7 @@ struct RecordingView: View {
             header
             recordControls
             transcriptArea
+            transcriptionStatusLine
             statusMessages
             footer
         }
@@ -90,6 +91,20 @@ struct RecordingView: View {
             .onChange(of: recorder.liveTranscript) { _, _ in
                 withAnimation { proxy.scrollTo("transcript", anchor: .bottom) }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var transcriptionStatusLine: some View {
+        if let status = recorder.transcriptionStatus {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.small)
+                Text(status)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

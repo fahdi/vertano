@@ -117,6 +117,33 @@ struct WhisperEngine: Sendable {
         }
 
         let outBase = workDir.appendingPathComponent("transcript")
+        let text = try runWhisper(
+            whisper, wav: wav, outBase: outBase,
+            language: language, translateToEnglish: translateToEnglish)
+
+        // Devanagari guard: auto-detect occasionally mistakes spoken Urdu for
+        // Hindi and transliterates into Devanagari script. Re-run once with
+        // the language forced to Urdu rather than surface the wrong script.
+        if language == "auto", !translateToEnglish, TextScript.isMajorityDevanagari(text) {
+            let retryBase = workDir.appendingPathComponent("transcript-ur-retry")
+            if let retried = try? runWhisper(
+                whisper, wav: wav, outBase: retryBase,
+                language: "ur", translateToEnglish: translateToEnglish),
+                !retried.isEmpty
+            {
+                return retried
+            }
+        }
+
+        return text
+    }
+
+    /// Runs whisper-cli once against `wav` and returns the trimmed transcript.
+    /// Throws `.transcriptionFailed` / `.emptyOutput` on failure.
+    private static func runWhisper(
+        _ whisper: String, wav: URL, outBase: URL,
+        language: String, translateToEnglish: Bool
+    ) throws -> String {
         var args = [
             "-m", modelPath.path,
             "-f", wav.path,

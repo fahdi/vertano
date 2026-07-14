@@ -37,6 +37,11 @@ final class RecordingController: ObservableObject {
     @Published var errorMessage: String?
     @Published var permissionDenied = false
     @Published var lastSavedURL: URL?
+    /// Non-nil whenever a chunk is somewhere in the whisper pipeline (queued
+    /// or actively transcribing), so the UI never reads as stalled during the
+    /// ~15 s per-chunk turnaround. Includes a pending-chunk count once more
+    /// than one is backed up.
+    @Published var transcriptionStatus: String?
 
     /// Whisper's native input rate; everything is captured straight to this.
     nonisolated static let sampleRate = 16_000.0
@@ -54,6 +59,9 @@ final class RecordingController: ObservableObject {
     /// Chunks transcribe strictly one at a time: each new task awaits the
     /// previous one, so the recorder never runs two whisper processes at once.
     private var chunkChain: Task<Void, Never>?
+    /// Count of chunks enqueued but not yet finished transcribing (including
+    /// the one currently in flight). Backs `transcriptionStatus`.
+    private var pendingChunkCount = 0
     private var startedAt = Date()
     private var sessionWavURL: URL?
 
@@ -66,6 +74,8 @@ final class RecordingController: ObservableObject {
         lastSavedURL = nil
         liveTranscript = ""
         elapsed = 0
+        pendingChunkCount = 0
+        transcriptionStatus = nil
 
         guard await Self.requestMicrophoneAccess() else {
             permissionDenied = true
@@ -188,6 +198,8 @@ final class RecordingController: ObservableObject {
         // apply from the next chunk onward.
         let translate = JobQueue.shared.translateToEnglish
         let language = JobQueue.shared.languageCode
+        pendingChunkCount += 1
+        updateTranscriptionStatus()
         let previous = chunkChain
         chunkChain = Task {
             await previous?.value
@@ -204,7 +216,22 @@ final class RecordingController: ObservableObject {
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
             }
+            self.pendingChunkCount -= 1
+            self.updateTranscriptionStatus()
         }
+    }
+
+    /// Refreshes `transcriptionStatus` from `pendingChunkCount`: nil when
+    /// idle, otherwise "Transcribing…" with a pending-chunk suffix once more
+    /// than one chunk is backed up in the pipeline.
+    private func updateTranscriptionStatus() {
+        guard pendingChunkCount > 0 else {
+            transcriptionStatus = nil
+            return
+        }
+        transcriptionStatus = pendingChunkCount > 1
+            ? "Transcribing… (\(pendingChunkCount) chunks pending)"
+            : "Transcribing…"
     }
 
     /// Blocking; call off the main actor. Mirrors WhisperEngine.transcribe,
@@ -228,34 +255,60 @@ final class RecordingController: ObservableObject {
             try writeWav(samples, to: wav)
 
             let outBase = workDir.appendingPathComponent("transcript")
-            var args = [
-                "-m", WhisperEngine.modelPath.path,
-                "-f", wav.path,
-                "-l", language,
-                "-otxt", "-of", outBase.path,
-                "-np",
-            ]
-            if translateToEnglish { args.append("--translate") }
+            var trimmed = try runWhisperChunk(
+                whisper, wav: wav, outBase: outBase,
+                language: language, translateToEnglish: translateToEnglish)
 
-            let result = try WhisperEngine.run(whisper, args)
-            guard result.exitCode == 0 else {
-                let detail = result.stderr
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .components(separatedBy: .newlines)
-                    .last { !$0.isEmpty } ?? "exit \(result.exitCode)"
-                throw EngineError.transcriptionFailed(detail)
+            // Devanagari guard: auto-detect occasionally mistakes spoken Urdu
+            // for Hindi and transliterates into Devanagari script. Re-run
+            // once with the language forced to Urdu rather than surface the
+            // wrong script.
+            if language == "auto", !translateToEnglish, TextScript.isMajorityDevanagari(trimmed) {
+                let retryBase = workDir.appendingPathComponent("transcript-ur-retry")
+                if let retried = try? runWhisperChunk(
+                    whisper, wav: wav, outBase: retryBase,
+                    language: "ur", translateToEnglish: translateToEnglish)
+                {
+                    trimmed = retried
+                }
             }
 
-            let txtURL = outBase.appendingPathExtension("txt")
-            let text = (try? String(contentsOf: txtURL, encoding: .utf8)) ?? ""
-            var trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            // Silence markers aren't speech; an empty chunk is normal mid-pause.
-            trimmed = trimmed.replacingOccurrences(of: "[BLANK_AUDIO]", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
             return .success(trimmed)
         } catch {
             return .failure(error)
         }
+    }
+
+    /// Runs whisper-cli once against `wav` and returns the trimmed transcript
+    /// (silence markers stripped). Empty results are returned as "", not
+    /// thrown — a silent chunk is normal mid-pause, not an error.
+    nonisolated private static func runWhisperChunk(
+        _ whisper: String, wav: URL, outBase: URL,
+        language: String, translateToEnglish: Bool
+    ) throws -> String {
+        var args = [
+            "-m", WhisperEngine.modelPath.path,
+            "-f", wav.path,
+            "-l", language,
+            "-otxt", "-of", outBase.path,
+            "-np",
+        ]
+        if translateToEnglish { args.append("--translate") }
+
+        let result = try WhisperEngine.run(whisper, args)
+        guard result.exitCode == 0 else {
+            let detail = result.stderr
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .components(separatedBy: .newlines)
+                .last { !$0.isEmpty } ?? "exit \(result.exitCode)"
+            throw EngineError.transcriptionFailed(detail)
+        }
+
+        let txtURL = outBase.appendingPathExtension("txt")
+        let text = (try? String(contentsOf: txtURL, encoding: .utf8)) ?? ""
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "[BLANK_AUDIO]", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Shared audio-file helpers
