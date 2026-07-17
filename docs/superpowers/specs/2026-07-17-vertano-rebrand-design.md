@@ -1,5 +1,15 @@
 # Vertano — Rebrand and Repositioning
 
+> **Superseded in part (2026-07-17, later the same day):** Fahd decided
+> the site keeps its existing court-transcript branding and its existing
+> home (GitHub Pages + web app in one place); only the NAME changes.
+> The in-place rename shipped in commit 9b02bc1 with vertano.app as the
+> custom domain over the same Pages site. The visual-identity and
+> hero-repositioning sections below did not ship and are parked; the
+> app-rename inventory, migrations, and sequencing sections remain the
+> plan of record for v0.3.0. Multi-page SEO expansion is welcome later,
+> in the existing branding.
+
 Date: 2026-07-17 · Status: Draft for review. Executes AFTER the
 cross-platform parity PRs merge (web #27-#29, android #10-#12), so every
 surface is touched exactly once.
