@@ -1,24 +1,60 @@
 # StenoDrop (Mac App)
 
-Native macOS app for batch audio transcription. Drag in files or folders and every
-audio file gets transcribed locally — offline, free, no API keys. Transcripts are
-saved as `.txt` next to each source file and are also viewable/copyable in the app.
+Native macOS app for batch audio transcription and caption translation. Drag in
+files or folders: audio/video gets transcribed locally, and downloaded caption
+files (`.srt`/`.vtt`) get cleaned and translated into timed caption tracks —
+offline, free, no API keys. Transcripts are saved as `.txt` next to each source
+file and are also viewable/copyable in the app.
 
-- **Engine:** `whisper-cli` (Homebrew `whisper-cpp`, Metal-accelerated) with the
-  Whisper **small** model (~466 MB). Good Urdu support, plus ~100 other languages
-  with auto-detection.
-- **Translate to English** toggle (default on). Turn it off to keep the transcript
-  in the spoken language.
+- **Engine:** `whisper-cli` (Homebrew `whisper-cpp`, Metal-accelerated). Three
+  model tiers, switchable in Settings — Efficient (fast, single-language),
+  Enhanced (better with accents/noise), Maximum (built for multilingual and
+  Indic-language audio, including code-switching). Only Efficient downloads
+  automatically on first launch; the others are opt-in.
+- **Translate To** menu (multi-select, persists across launches). The original
+  spoken-language transcript is always saved; each checked language adds its
+  own translated output file. English uses whisper's native translate task;
+  other languages use Apple's on-device Translation framework (macOS 15+,
+  fully offline once the language pack is installed).
 - **Language picker** (default Auto-detect). Force the spoken language when
-  auto-detection misfires on short clips — e.g. Urdu heard as Hindi. Both this
-  and the translate toggle persist across launches.
+  auto-detection misfires on short clips — e.g. Urdu heard as Hindi. Persists
+  across launches.
 - **Inputs:** wav, mp3, m4a, aac, flac, ogg/oga, opus, aiff, caf, amr, wma — plus
   video containers (mp4, mov, m4v, webm, mkv), from which the audio track is used.
   Everything is normalized to 16 kHz mono WAV via ffmpeg before transcription.
-- Folders are scanned recursively; non-audio files are skipped. Jobs run
+  **Caption files** (`.srt`, `.vtt`) are also accepted — no audio involved.
+- Folders are scanned recursively; unsupported files are skipped. Jobs run
   sequentially; a failed file is marked with its error and the queue continues.
 
-Requires macOS 14+.
+## Caption files (.srt / .vtt)
+
+Drop a downloaded caption file (e.g. from `yt-dlp`, a browser extension, or
+YouTube Studio) and StenoDrop:
+
+- **Cleans it.** YouTube auto-generated captions download as "rolling"
+  captions where every line appears twice; StenoDrop detects that structure
+  and produces a deduplicated, correctly retimed track. Manually authored and
+  karaoke-style files pass through untouched.
+- **Always saves the cleaned source track** as `name.<lang>.srt`/`.vtt` plus a
+  flattened `name.<lang>.txt` — the original file is never modified.
+- **Translates it** into every language checked under Translate To, one timed
+  caption file per language, using Apple's on-device Translation framework
+  (macOS 15+, language packs download on first use).
+- Picks the source language from the VTT `Language:` header, then the toolbar
+  Language picker (when not Auto-detect), then on-device detection.
+- If a caption file and its media file are dropped together (`Talk.mp4` +
+  `Talk.en.vtt`), the caption file wins and the media file is skipped.
+
+**Known limitations:**
+
+- Apple Translation does not support Urdu, Bengali, Persian, Punjabi, or
+  Pashto (in either direction). Those languages are skipped with a note; the
+  cleaned, deduplicated source track is still produced.
+- The app bundle declares no `CFBundleDocumentTypes`, so Finder "Open With"
+  and Dock-icon drops of `.srt`/`.vtt` files don't work — use the in-app drop
+  zone or the file picker.
+
+Requires macOS 15+.
 
 ## Record live
 
@@ -34,9 +70,10 @@ First use prompts for microphone access — everything stays on your Mac.
 brew install whisper-cpp ffmpeg
 ```
 
-The Whisper model is not bundled. On first launch the app shows a setup screen
-that checks for both tools and offers a one-click model download (to
-`~/Library/Application Support/StenoDrop/models/ggml-small.bin`).
+Whisper models are not bundled. On first launch the app shows a setup screen
+that checks for both tools and offers a one-click download of the Efficient
+model (to `~/Library/Application Support/StenoDrop/models/ggml-small.bin`).
+Enhanced and Maximum are downloaded on demand from Settings → Model.
 
 ## Development
 
@@ -68,4 +105,4 @@ cp -R dist/StenoDrop.app /Applications/
   (e.g. a read-only volume), the job is marked "Done (not saved)" and the
   transcript is still available in the app for copying.
 - `whisper-cli` is located via `/opt/homebrew/bin`, `/usr/local/bin`, then `PATH`.
-- Design spec: [`docs/superpowers/specs/2026-07-13-mac-app-design.md`](../docs/superpowers/specs/2026-07-13-mac-app-design.md)
+- Design specs: [`docs/superpowers/specs/2026-07-13-mac-app-design.md`](../docs/superpowers/specs/2026-07-13-mac-app-design.md), [`docs/superpowers/specs/2026-07-17-mac-model-tiers-translation-design.md`](../docs/superpowers/specs/2026-07-17-mac-model-tiers-translation-design.md)

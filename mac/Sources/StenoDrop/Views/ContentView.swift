@@ -59,10 +59,7 @@ struct ContentView: View {
             .pickerStyle(.menu)
             .fixedSize()
             .help("Spoken language of the audio. Auto-detect works well; force it if short clips get misidentified.")
-            Toggle("Translate to English", isOn: $queue.translateToEnglish)
-                .toggleStyle(.switch)
-                .controlSize(.small)
-                .help("On: any language → English. Off: transcript stays in the spoken language.")
+            translationMenu
             Button {
                 showRecorder = true
             } label: {
@@ -82,14 +79,57 @@ struct ContentView: View {
         .padding(.vertical, 10)
     }
 
+    /// The original spoken-language transcript is always produced
+    /// (`filename.txt`); each checked language here adds one more output
+    /// file (`filename.en.txt`, `filename.fr.txt`, ...).
+    private var translationMenu: some View {
+        Menu {
+            ForEach(JobQueue.languages.filter { $0.code != "auto" }, id: \.code) { language in
+                Toggle(
+                    language.name,
+                    isOn: Binding(
+                        get: { queue.targetLanguages.contains(language.code) },
+                        set: { isOn in
+                            if isOn {
+                                queue.targetLanguages.insert(language.code)
+                            } else {
+                                queue.targetLanguages.remove(language.code)
+                            }
+                        }
+                    ))
+            }
+        } label: {
+            Label(translationMenuTitle, systemImage: "globe")
+        }
+        .help(
+            "Translate transcripts and caption files into one or more additional languages. "
+                + "Each selected language is saved as its own file alongside the original; "
+                + "caption files also get a timed .srt/.vtt track per language."
+        )
+    }
+
+    private var translationMenuTitle: String {
+        switch queue.targetLanguages.count {
+        case 0: "Translate To…"
+        case 1: "Translate To: \(languageName(queue.targetLanguages.first!))"
+        default: "Translate To: \(queue.targetLanguages.count) languages"
+        }
+    }
+
+    private func languageName(_ code: String) -> String {
+        JobQueue.languages.first { $0.code == code }?.name ?? code
+    }
+
     private var dropZone: some View {
         VStack(spacing: 14) {
             Image(systemName: "square.and.arrow.down.on.square")
                 .font(.system(size: 44))
                 .foregroundStyle(.secondary)
-            Text("Drop audio files or folders here")
+            Text("Drop audio, video, or caption files (.srt/.vtt) here")
                 .font(.title3.weight(.medium))
-            Text("Transcripts are saved as .txt next to each file — all offline, all free.")
+            Text(
+                "Transcripts are saved as .txt and captions as cleaned, translated "
+                    + ".srt/.vtt next to each file — all offline, all free.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             Button("Browse…") { chooseFolder() }
@@ -117,8 +157,9 @@ struct ContentView: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
-        panel.prompt = "Transcribe"
-        panel.message = "Pick audio files, or folders to transcribe everything inside."
+        panel.prompt = "Add"
+        panel.message =
+            "Pick audio files or .srt/.vtt caption files, or folders to process everything inside."
         if panel.runModal() == .OK {
             queue.ingest(urls: panel.urls)
         }
