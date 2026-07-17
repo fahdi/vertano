@@ -1,8 +1,10 @@
 # StenoDrop (Mac App)
 
-Native macOS app for batch audio transcription. Drag in files or folders and every
-audio file gets transcribed locally — offline, free, no API keys. Transcripts are
-saved as `.txt` next to each source file and are also viewable/copyable in the app.
+Native macOS app for batch audio transcription and caption translation. Drag in
+files or folders: audio/video gets transcribed locally, and downloaded caption
+files (`.srt`/`.vtt`) get cleaned and translated into timed caption tracks —
+offline, free, no API keys. Transcripts are saved as `.txt` next to each source
+file and are also viewable/copyable in the app.
 
 - **Engine:** `whisper-cli` (Homebrew `whisper-cpp`, Metal-accelerated). Three
   model tiers, switchable in Settings — Efficient (fast, single-language),
@@ -20,8 +22,37 @@ saved as `.txt` next to each source file and are also viewable/copyable in the a
 - **Inputs:** wav, mp3, m4a, aac, flac, ogg/oga, opus, aiff, caf, amr, wma — plus
   video containers (mp4, mov, m4v, webm, mkv), from which the audio track is used.
   Everything is normalized to 16 kHz mono WAV via ffmpeg before transcription.
-- Folders are scanned recursively; non-audio files are skipped. Jobs run
+  **Caption files** (`.srt`, `.vtt`) are also accepted — no audio involved.
+- Folders are scanned recursively; unsupported files are skipped. Jobs run
   sequentially; a failed file is marked with its error and the queue continues.
+
+## Caption files (.srt / .vtt)
+
+Drop a downloaded caption file (e.g. from `yt-dlp`, a browser extension, or
+YouTube Studio) and StenoDrop:
+
+- **Cleans it.** YouTube auto-generated captions download as "rolling"
+  captions where every line appears twice; StenoDrop detects that structure
+  and produces a deduplicated, correctly retimed track. Manually authored and
+  karaoke-style files pass through untouched.
+- **Always saves the cleaned source track** as `name.<lang>.srt`/`.vtt` plus a
+  flattened `name.<lang>.txt` — the original file is never modified.
+- **Translates it** into every language checked under Translate To, one timed
+  caption file per language, using Apple's on-device Translation framework
+  (macOS 15+, language packs download on first use).
+- Picks the source language from the VTT `Language:` header, then the toolbar
+  Language picker (when not Auto-detect), then on-device detection.
+- If a caption file and its media file are dropped together (`Talk.mp4` +
+  `Talk.en.vtt`), the caption file wins and the media file is skipped.
+
+**Known limitations:**
+
+- Apple Translation does not support Urdu, Bengali, Persian, Punjabi, or
+  Pashto (in either direction). Those languages are skipped with a note; the
+  cleaned, deduplicated source track is still produced.
+- The app bundle declares no `CFBundleDocumentTypes`, so Finder "Open With"
+  and Dock-icon drops of `.srt`/`.vtt` files don't work — use the in-app drop
+  zone or the file picker.
 
 Requires macOS 15+.
 

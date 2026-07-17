@@ -3,8 +3,12 @@ import Translation
 
 /// Invisible session host for `TranslationBridge` — mounted once in
 /// `RootView` so it stays alive for the app's lifetime. `.translationTask`
-/// re-runs its closure whenever `configuration` changes, i.e. whenever a
-/// new pending request needs a different target language.
+/// re-runs its closure whenever the bridge's STORED `configuration`
+/// transitions, which the bridge's main-actor consumer guarantees happens
+/// exactly once per head-of-queue request (invalidating in place for
+/// same-target consecutive heads). The configuration must never be a
+/// computed property here: rebuilding it per render resets its version and
+/// the second of two same-target requests would never fire.
 struct TranslationBridgeView: View {
     @ObservedObject var bridge: TranslationBridge
 
@@ -22,23 +26,34 @@ struct TranslationBridgeView: View {
             // SwiftUI `body` (MainActor by protocol requirement) infers
             // MainActor isolation from its enclosing context, which then
             // makes the non-Sendable `session` parameter "main actor
-            // isolated" and trips the concurrency checker on the call
-            // below (`translate` is a plain nonisolated instance method).
-            .translationTask(configuration) { @Sendable session in
+            // isolated" and trips the concurrency checker on the calls
+            // below.
+            .translationTask(bridge.configuration) { @Sendable session in
                 guard let request = bridge.currentRequest else { return }
                 do {
-                    let response = try await session.translate(request.text)
-                    bridge.complete(request.id, result: .success(response.targetText))
+                    let fulfilled: [TranslationBridge.FulfilledTranslation]
+                    if request.texts.count == 1 {
+                        let response = try await session.translate(request.texts[0])
+                        fulfilled = [
+                            .init(clientIdentifier: "0", targetText: response.targetText)
+                        ]
+                    } else {
+                        let batch = request.texts.enumerated().map { index, text in
+                            TranslationSession.Request(
+                                sourceText: text, clientIdentifier: String(index))
+                        }
+                        fulfilled = try await session.translations(from: batch).map {
+                            .init(clientIdentifier: $0.clientIdentifier, targetText: $0.targetText)
+                        }
+                    }
+                    if Task.isCancelled { return }
+                    bridge.complete(request.id, with: .success(fulfilled))
                 } catch {
-                    bridge.complete(request.id, result: .failure(error))
+                    // A cancelled task means the configuration moved on to a
+                    // newer head; completing would fail the wrong request.
+                    if Task.isCancelled || error is CancellationError { return }
+                    bridge.complete(request.id, with: .failure(error))
                 }
             }
-    }
-
-    private var configuration: TranslationSession.Configuration? {
-        guard let request = bridge.currentRequest,
-            let target = Locale.Language(identifier: request.targetLanguageCode) as Locale.Language?
-        else { return nil }
-        return TranslationSession.Configuration(target: target)
     }
 }

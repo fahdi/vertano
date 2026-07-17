@@ -12,7 +12,8 @@ let package = Package(
         .testTarget(
             name: "StenoDropTests",
             dependencies: ["StenoDrop"],
-            path: "Tests/StenoDropTests"
+            path: "Tests/StenoDropTests",
+            resources: [.copy("Fixtures")]
         ),
     ]
 )

@@ -102,8 +102,9 @@ struct ContentView: View {
             Label(translationMenuTitle, systemImage: "globe")
         }
         .help(
-            "Translate the transcript into one or more additional languages. "
-                + "Each selected language is saved as its own file alongside the original."
+            "Translate transcripts and caption files into one or more additional languages. "
+                + "Each selected language is saved as its own file alongside the original; "
+                + "caption files also get a timed .srt/.vtt track per language."
         )
     }
 
@@ -124,9 +125,11 @@ struct ContentView: View {
             Image(systemName: "square.and.arrow.down.on.square")
                 .font(.system(size: 44))
                 .foregroundStyle(.secondary)
-            Text("Drop audio files or folders here")
+            Text("Drop audio, video, or caption files (.srt/.vtt) here")
                 .font(.title3.weight(.medium))
-            Text("Transcripts are saved as .txt next to each file — all offline, all free.")
+            Text(
+                "Transcripts are saved as .txt and captions as cleaned, translated "
+                    + ".srt/.vtt next to each file — all offline, all free.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
             Button("Browse…") { chooseFolder() }
@@ -154,8 +157,9 @@ struct ContentView: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
-        panel.prompt = "Transcribe"
-        panel.message = "Pick audio files, or folders to transcribe everything inside."
+        panel.prompt = "Add"
+        panel.message =
+            "Pick audio files or .srt/.vtt caption files, or folders to process everything inside."
         if panel.runModal() == .OK {
             queue.ingest(urls: panel.urls)
         }

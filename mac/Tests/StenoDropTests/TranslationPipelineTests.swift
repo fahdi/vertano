@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 
 @testable import StenoDrop
@@ -10,10 +11,20 @@ private actor FakeTranslationEngine: TranslationEngine {
     private(set) var calls: [(text: String, language: String)] = []
     var failFor: Set<String> = []
 
-    func translate(_ text: String, to languageCode: String) async throws -> String {
-        calls.append((text, languageCode))
-        if failFor.contains(languageCode) { throw FakeError.boom }
-        return "[\(languageCode)] \(text)"
+    func translateBatch(
+        texts: [String],
+        from source: Locale.Language?,
+        to target: Locale.Language,
+        onSubBatchCompleted: @escaping @Sendable (Int, Int) -> Void
+    ) async -> [Int: Result<String, Error>] {
+        let code = target.minimalIdentifier
+        var results: [Int: Result<String, Error>] = [:]
+        for (index, text) in texts.enumerated() {
+            calls.append((text, code))
+            results[index] =
+                failFor.contains(code) ? .failure(FakeError.boom) : .success("[\(code)] \(text)")
+        }
+        return results
     }
 }
 
