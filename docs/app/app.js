@@ -3,6 +3,16 @@
 // queue UI, and downloads (per-file .txt, all-as-.zip). All model work
 // happens in worker.js so this thread never blocks.
 import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip@2.5.0/index.js";
+import {
+  parseCaptions,
+  reflow,
+  chunkCues,
+  redistribute,
+  serializeCaptions,
+  flattenedText,
+  captionOutputName,
+  formatFromExtension,
+} from "./captions.js";
 
 // Placeholder for the not-yet-deployed cloud transcription server (see
 // docs/superpowers/specs/2026-07-16-cloud-transcription-design.md for the
@@ -44,6 +54,10 @@ const AUDIO_EXTENSIONS = new Set([
   "aiff", "aif", "caf", "amr", "wma", "3gp",
   "mp4", "mov", "m4v", "avi", "webm", "mkv",
 ]);
+
+// Caption files are already transcripts with timing: they skip Whisper
+// entirely and go through the caption pipeline (cleanup + translation).
+const CAPTION_EXTENSIONS = new Set(["srt", "vtt"]);
 
 const WHISPER_SAMPLE_RATE = 16000;
 
@@ -320,10 +334,23 @@ function extOf(name) {
 }
 
 function addFiles(fileList) {
-  const files = Array.from(fileList).filter((f) => AUDIO_EXTENSIONS.has(extOf(f.name)));
+  const files = Array.from(fileList).filter(
+    (f) => AUDIO_EXTENSIONS.has(extOf(f.name)) || CAPTION_EXTENSIONS.has(extOf(f.name))
+  );
   if (files.length === 0) return;
   for (const file of files) {
-    jobs.push({ id: String(jobSeq++), file, status: "queued", texts: {}, error: "" });
+    const kind = CAPTION_EXTENSIONS.has(extOf(file.name)) ? "caption" : "audio";
+    jobs.push({
+      id: String(jobSeq++),
+      file,
+      kind,
+      status: "queued",
+      texts: {},
+      outputs: [],
+      notes: [],
+      previewText: "",
+      error: "",
+    });
   }
   queueSection.hidden = false;
   renderQueue();
@@ -370,6 +397,17 @@ function pump() {
   if (!next) return;
 
   isProcessing = true;
+
+  if (next.kind === "caption") {
+    // Caption files never touch Whisper or the cloud server: parsing and
+    // cleanup run right here, translation uses the browser's built-in
+    // Translator when it exists.
+    next.status = "cleaning";
+    renderQueue();
+    runCaptionJob(next);
+    return;
+  }
+
   next.status = "transcribing";
   renderQueue();
 
@@ -486,6 +524,192 @@ async function cloudTranscribe(file, language, translate) {
   }
 }
 
+// ---------- caption jobs (see captions.js for the pure pipeline) ----------
+
+/** English-locale language names so notes read naturally ("Urdu", not "ur"). */
+const languageDisplayNames = (() => {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "language" });
+  } catch (e) {
+    return null;
+  }
+})();
+
+function displayName(code) {
+  if (!code || code === "und") return "the source language";
+  try {
+    return (languageDisplayNames && languageDisplayNames.of(code)) || code;
+  } catch (e) {
+    return code;
+  }
+}
+
+/** Primary-subtag comparison, never raw strings: zh-Hans and zh match. */
+function sameLanguage(a, b) {
+  if (!a || !b) return false;
+  return a.split("-")[0].toLowerCase() === b.split("-")[0].toLowerCase();
+}
+
+/** Best-effort source language detection via the browser's built-in
+ * LanguageDetector, when it exists. Returns a BCP-47 code or null. */
+async function detectLanguage(sample) {
+  if (!("LanguageDetector" in self)) return null;
+  try {
+    const detector = await LanguageDetector.create();
+    const results = await detector.detect(sample.slice(0, 1000));
+    const top = results && results[0];
+    if (top && top.detectedLanguage && top.detectedLanguage !== "und" && top.confidence > 0.5) {
+      return top.detectedLanguage;
+    }
+  } catch (e) {
+    // Detection is best-effort; translation gets a per-language note instead.
+  }
+  return null;
+}
+
+/**
+ * Create a translator for one source/target pair via the browser's built-in
+ * Translator API. Every failure path pushes a visible per-language note and
+ * returns null; nothing here fails silently. Language packs download on
+ * first use inside Translator.create().
+ */
+async function createTranslator(sourceLang, target, notes) {
+  const targetName = displayName(target);
+  if (!("Translator" in self)) {
+    notes.push(
+      `${targetName} translation isn't available in this browser. It needs the built-in Translator (Chrome 138+ on desktop). The cleaned track is still saved.`
+    );
+    return null;
+  }
+  if (!sourceLang) {
+    notes.push(
+      `Couldn't determine the source language, so ${targetName} translation was skipped. Pick the language above and re-add the file.`
+    );
+    return null;
+  }
+  try {
+    const availability = await Translator.availability({
+      sourceLanguage: sourceLang,
+      targetLanguage: target,
+    });
+    if (availability === "unavailable") {
+      notes.push(
+        `This browser can't translate ${displayName(sourceLang)} to ${targetName}. The cleaned track is still saved.`
+      );
+      return null;
+    }
+    return await Translator.create({
+      sourceLanguage: sourceLang,
+      targetLanguage: target,
+    });
+  } catch (err) {
+    notes.push(
+      `${targetName} translation couldn't start: ${String(err && err.message ? err.message : err)}. The cleaned track is still saved.`
+    );
+    return null;
+  }
+}
+
+/** Which caption translation targets are currently selected. */
+function captionTargets() {
+  return outputEnglish.checked ? ["en"] : [];
+}
+
+/**
+ * Run one caption job: parse, reflow (rolling-caption cleanup), always emit
+ * the cleaned source track plus a flattened .txt, then one translated track
+ * plus .txt per selected target language via the Translator API. Unsupported
+ * pairs get a visible note, never a silent failure.
+ */
+async function runCaptionJob(job) {
+  try {
+    const format = formatFromExtension(extOf(job.file.name));
+    const data = new Uint8Array(await job.file.arrayBuffer());
+    const parsed = parseCaptions(data, format);
+    const notes = [...parsed.warnings];
+    const result = reflow(parsed.cues);
+    const flattened = flattenedText(result.cues);
+
+    // Source language priority: VTT Language header, then the picker when
+    // not auto, then best-effort detection.
+    let sourceLang = parsed.language ? parsed.language.trim() : null;
+    if (!sourceLang && languageSelect.value !== "auto") sourceLang = languageSelect.value;
+    if (!sourceLang) sourceLang = await detectLanguage(flattened);
+    const sourceCode = sourceLang || "und";
+
+    // The cleaned source track is always produced. For languages the
+    // Translator can't serve, it is the whole feature.
+    const outputs = [
+      {
+        label: "Cleaned " + format,
+        name: captionOutputName(job.file.name, sourceCode, format),
+        text: serializeCaptions(result.cues, format, format === "vtt" ? sourceCode : null),
+      },
+      {
+        label: "Text",
+        name: captionOutputName(job.file.name, sourceCode, "txt"),
+        text: flattened + "\n",
+      },
+    ];
+
+    const chunks = chunkCues(result.cues, result.runBoundaries);
+    for (const target of captionTargets()) {
+      const targetName = displayName(target);
+      if (sourceLang && sameLanguage(sourceLang, target)) {
+        notes.push(
+          `${targetName} skipped, the captions are already ${displayName(sourceCode)}. Cleaned track saved.`
+        );
+        continue;
+      }
+      const translator = await createTranslator(sourceLang, target, notes);
+      if (!translator) continue;
+
+      job.status = "translating";
+      renderQueue();
+
+      const outputCues = [];
+      let untranslated = 0;
+      for (const chunk of chunks) {
+        let translated = "";
+        try {
+          translated = await translator.translate(chunk.text);
+        } catch (err) {
+          translated = ""; // Chunk falls back to cleaned source text below.
+        }
+        const redistribution = redistribute(translated, chunk, result.cues, target);
+        if (redistribution.usedSourceFallback) untranslated += 1;
+        outputCues.push(...redistribution.cues);
+      }
+      if (untranslated > 0) {
+        notes.push(`${targetName}: ${untranslated} of ${chunks.length} segments untranslated`);
+      }
+      outputs.push({
+        label: targetName + " " + format,
+        name: captionOutputName(job.file.name, target, format),
+        text: serializeCaptions(outputCues, format, format === "vtt" ? target : null),
+      });
+      outputs.push({
+        label: targetName + " text",
+        name: captionOutputName(job.file.name, target, "txt"),
+        text: flattenedText(outputCues) + "\n",
+      });
+      if (typeof translator.destroy === "function") translator.destroy();
+    }
+
+    job.outputs = outputs;
+    job.notes = notes;
+    job.previewText = flattened;
+    job.status = "done";
+  } catch (err) {
+    job.status = "failed";
+    job.error = String(err && err.message ? err.message : err);
+  }
+  renderQueue();
+  isProcessing = false;
+  pump();
+  maybeShowDownloadAll();
+}
+
 /** Which output variants ("original", "english") are currently checked. */
 function selectedOutputs() {
   const outputs = [];
@@ -530,6 +754,8 @@ async function decodeToPCM(file) {
 const STATUS_LABEL = {
   queued: "Queued",
   transcribing: "Transcribing…",
+  cleaning: "Cleaning captions…",
+  translating: "Translating…",
   done: "Done",
   failed: "Failed",
 };
@@ -565,7 +791,10 @@ function renderQueue() {
       copyBtn.className = "btn-mini";
       copyBtn.textContent = "Copy";
       copyBtn.addEventListener("click", () => {
-        const combined = files.map((f) => (files.length > 1 ? `[${f.label}]\n${f.text}` : f.text)).join("\n\n");
+        const combined =
+          job.kind === "caption"
+            ? job.previewText
+            : files.map((f) => (files.length > 1 ? `[${f.label}]\n${f.text}` : f.text)).join("\n\n");
         navigator.clipboard.writeText(combined).then(() => {
           copyBtn.textContent = "Copied ✓";
           setTimeout(() => (copyBtn.textContent = "Copy"), 1400);
@@ -579,13 +808,28 @@ function renderQueue() {
     row.appendChild(actions);
 
     if (job.status === "done") {
-      const files = outputFiles(job);
-      for (const f of files) {
+      if (job.kind === "caption") {
+        // One preview of the cleaned, deduplicated text; the timed tracks
+        // are download-only (dumping full SRT/VTT here would be noise).
         const transcript = document.createElement("div");
         transcript.className = "q-transcript";
-        transcript.textContent =
-          (files.length > 1 ? `[${f.label}] ` : "") + (f.text || "(empty transcript)");
+        transcript.textContent = job.previewText || "(empty captions)";
         row.appendChild(transcript);
+      } else {
+        const files = outputFiles(job);
+        for (const f of files) {
+          const transcript = document.createElement("div");
+          transcript.className = "q-transcript";
+          transcript.textContent =
+            (files.length > 1 ? `[${f.label}] ` : "") + (f.text || "(empty transcript)");
+          row.appendChild(transcript);
+        }
+      }
+      for (const note of job.notes || []) {
+        const noteEl = document.createElement("div");
+        noteEl.className = "q-note";
+        noteEl.textContent = note;
+        row.appendChild(noteEl);
       }
       if (job.error) {
         // Partial cloud failure: one output succeeded, the other didn't.
@@ -631,6 +875,7 @@ function txtName(fileName) {
  * neither collides with the single-output convention.
  */
 function outputFiles(job) {
+  if (job.kind === "caption") return job.outputs || [];
   const texts = job.texts || {};
   const keys = Object.keys(texts);
   if (keys.length <= 1) {
