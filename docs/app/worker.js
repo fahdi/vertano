@@ -1,4 +1,4 @@
-// StenoDrop web worker, model load + inference, off the main thread.
+// Vertano web worker, model load + inference, off the main thread.
 //
 // Engine: @huggingface/transformers (Transformers.js v4), ONNX Runtime Web.
 // Model: onnx-community/whisper-base, multilingual Whisper base, ONNX

@@ -1,4 +1,4 @@
-// StenoDrop web app, main thread. Handles file/folder ingestion, audio
+// Vertano web app, main thread. Handles file/folder ingestion, audio
 // decode + resample to 16kHz mono (Whisper's required input), the batch
 // queue UI, and downloads (per-file .txt, all-as-.zip). All model work
 // happens in worker.js so this thread never blocks.
@@ -676,7 +676,7 @@ async function downloadAllZip() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "stenodrop-transcripts.zip";
+  a.download = "vertano-transcripts.zip";
   document.body.appendChild(a);
   a.click();
   a.remove();
