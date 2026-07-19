@@ -1,0 +1,196 @@
+---
+import Base from '../layouts/Base.astro';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Vertano',
+  operatingSystem: 'macOS 15+, Windows 10+, Linux, Android 8+',
+  applicationCategory: 'UtilitiesApplication',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  description:
+    'Free offline batch audio transcription app. Drag and drop audio files or folders; transcripts are saved as .txt next to each file. Cleans and translates downloaded YouTube caption files. Runs entirely on-device, supports 100 languages including Urdu with translation to English.',
+  url: 'https://vertano.app/',
+  downloadUrl: 'https://github.com/fahdi/vertano/releases/latest',
+};
+---
+
+<Base
+  title="Vertano (formerly StenoDrop): Free Offline Audio Transcription for Mac, Windows, Linux and Android"
+  description="Formerly StenoDrop. Drop a folder of audio files on Vertano and get a .txt transcript next to every one. Clean and translate downloaded YouTube captions too. Free, offline, and private. Works in 100 languages, with instant Urdu to English translation."
+  ogTitle="Vertano: drop a folder, read everything"
+  ogDescription="Free offline batch audio transcription and YouTube caption cleanup. 100 languages, nothing leaves your device. Mac, Windows, Linux, and Android."
+  schema={schema}
+>
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <div class="kicker rv in">Batch transcription · offline &amp; free</div>
+        <h1 class="rv in">Drop a folder.<br />Read <em>everything.</em></h1>
+        <div class="qa rv in">
+          <p><b>Q.</b>&nbsp; I have two hundred recordings I've never listened to.</p>
+          <p><b>A.</b>&nbsp; Drop the folder. Every file becomes a .txt transcript, saved right beside it.</p>
+        </div>
+        <p class="meta-line rv in">no uploads, no accounts, no per-minute fees. Everything runs on your own machine.</p>
+        <div class="cta-row rv in">
+          <a class="btn btn-primary" href="/download/">↓ Download free</a>
+          <a class="btn btn-ghost" href="#how">See the record</a>
+        </div>
+        <p class="meta-line rv in" style="margin:16px 0 0"><a href="/app/" style="color:var(--red);text-decoration:underline;text-underline-offset:3px">Try it in your browser →</a> no install required</p>
+      </div>
+      <div class="pleading exhibit rv in">
+        <div class="gutter" aria-hidden="true"></div>
+        <div style="padding-left:52px">
+          <div class="exhibit-title"><span>Transcript of proceedings</span><b>QUEUE: 8 FILES</b></div>
+          <div class="t-lines">
+            <div class="t-line"><div class="t-body t-file"><b>interview-lahore.m4a</b> <span class="to">→</span> .txt</div></div>
+            <div class="t-line"><div class="t-body t-ur" id="line-ur"></div></div>
+            <div class="t-line"><div class="t-body" id="line-en"></div></div>
+            <div class="t-line"><div class="t-body t-dim" id="line-stat"></div></div>
+          </div>
+        </div>
+        <div class="seal" aria-hidden="true">
+          <svg viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="52" fill="var(--sheet)" stroke="currentColor" stroke-width="2"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path id="sealArc" d="M55,55 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" fill="none"/>
+            <text font-family="Courier Prime,monospace" font-size="10.5" letter-spacing="2.5" fill="currentColor">
+              <textPath href="#sealArc">TRANSCRIBED ON DEVICE · NOTHING UPLOADED ·</textPath>
+            </text>
+            <text x="55" y="52" text-anchor="middle" font-family="Courier Prime,monospace" font-weight="700" font-size="13" fill="currentColor">FREE</text>
+            <text x="55" y="66" text-anchor="middle" font-family="Courier Prime,monospace" font-size="9" fill="currentColor">✓ CERTIFIED</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formats" aria-label="Supported formats: wav, mp3, m4a, flac, ogg, opus, aiff, caf, voice memos, mp4, mov, webm">
+    <div class="f-track">
+      <div class="f-set">
+        <span class="f-item">WAV</span><span class="f-item">MP3</span><span class="f-item">M4A</span><span class="f-item">FLAC</span><span class="f-item">OGG</span><span class="f-item">OPUS</span><span class="f-item">AIFF</span><span class="f-item">CAF</span><span class="f-item">VOICE MEMOS</span><span class="f-item">MP4</span><span class="f-item">MOV</span><span class="f-item">WEBM</span>
+        <span class="f-note">100 languages · on-device translation · YouTube caption cleanup · runs locally</span>
+      </div>
+      <div class="f-set" aria-hidden="true">
+        <span class="f-item">WAV</span><span class="f-item">MP3</span><span class="f-item">M4A</span><span class="f-item">FLAC</span><span class="f-item">OGG</span><span class="f-item">OPUS</span><span class="f-item">AIFF</span><span class="f-item">CAF</span><span class="f-item">VOICE MEMOS</span><span class="f-item">MP4</span><span class="f-item">MOV</span><span class="f-item">WEBM</span>
+        <span class="f-note">100 languages · on-device translation · YouTube caption cleanup · runs locally</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <a class="gh-banner rv" href="https://github.com/fahdi/vertano" target="_blank" rel="noopener">
+      <b>Open source</b>
+      <span>Free forever, MIT licensed, and open for anyone to inspect. <u>View the repository on GitHub</u>.</span>
+    </a>
+  </div>
+
+  <div class="wrap">
+    <section id="how">
+      <div class="sec-label rv">The procedure</div>
+      <h2 class="rv">Three entries on the docket.</h2>
+      <figure class="story rv" role="img" aria-label="A person speaks; Vertano writes it into a notepad as text.">
+        <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(28,14) scale(1.72)">
+            <path fill="var(--ink)" d="M8 122 C10 103 24 95 35 91.5 C37.5 90.6 38.5 88.5 38.5 85 C31 79 25.5 69 25 57 C24.3 37 35 19.5 52 18.2 C61.5 17.6 69.8 23.2 71.8 31 C72.7 34.6 72.5 37.6 71.6 40 L78 48.8 C79 50.4 78.2 51.8 76.2 52 L70.9 52.5 C70.4 54 71 54.8 73 55.4 L74.6 56.6 L64.8 59.6 L72.6 63 C72.6 64.9 71.3 66.2 69 66.8 C69.6 69.8 68 72.9 64.4 74.9 C62.2 76.1 60 77.8 57.9 79.1 C56.3 83.6 56 87.6 56.5 91.5 C70 95.5 78.6 104 80.5 122 Z"/>
+            <g stroke="var(--red)" stroke-width="4" stroke-linecap="round" fill="none">
+              <path d="M86 50 L97 43"/><path d="M88 60.5 L103 60.5"/><path d="M86 71 L97 78"/>
+            </g>
+          </g>
+          <g stroke="var(--dim)" stroke-width="5" stroke-linecap="round" fill="none">
+            <path d="M250 128 C300 100 350 160 408 122"/><path d="M394 112 L410 121 L392 132"/>
+          </g>
+          <g stroke="var(--ink)" stroke-linecap="round" fill="none">
+            <rect x="470" y="26" width="240" height="200" rx="16" stroke-width="9"/>
+            <g stroke-width="7">
+              <circle cx="470" cy="52" r="15"/><circle cx="470" cy="92" r="15"/><circle cx="470" cy="132" r="15"/><circle cx="470" cy="172" r="15"/><circle cx="470" cy="205" r="15"/>
+            </g>
+            <g stroke-width="8">
+              <path d="M512 68 C550 61 600 66 668 61"/><path d="M512 106 C545 100 610 106 660 100"/><path d="M512 144 C550 138 600 143 656 138"/>
+            </g>
+            <path d="M512 180 C535 175 555 179 580 176" stroke="var(--red)" stroke-width="8"/>
+          </g>
+          <g transform="rotate(-48 640 240)">
+            <rect x="600" y="222" width="118" height="30" rx="6" fill="var(--sheet)" stroke="var(--ink)" stroke-width="7"/>
+            <path d="M600 226 L566 237 L600 248 Z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round"/>
+            <path d="M574 234.5 L566 237 L568.5 245 Z" fill="var(--red)" stroke="var(--red)" stroke-width="3" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </figure>
+      <div class="docket rv">
+        <div class="d-row">
+          <div class="d-no">ENTRY 01</div>
+          <div class="d-act">Drop</div>
+          <div class="d-desc">Drag in audio files, an entire folder, or a downloaded YouTube caption file. Vertano searches every subfolder and queues everything it can work on.</div>
+        </div>
+        <div class="d-row">
+          <div class="d-no">ENTRY 02</div>
+          <div class="d-act">Transcribe</div>
+          <div class="d-desc">Speech recognition runs right on your machine, accelerated by Apple Silicon. A five-second clip finishes in under a second, and nothing ever touches the network.</div>
+        </div>
+        <div class="d-row">
+          <div class="d-no">ENTRY 03</div>
+          <div class="d-act">Read</div>
+          <div class="d-desc">Each transcript is saved as <code>name.txt</code> beside its audio file, and kept in the app so you can copy it or reveal it in Finder.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-label rv">The exhibits</div>
+      <h2 class="rv">A stenographer that lives on your machine.</h2>
+      <p class="lede rv">Cloud services charge by the minute and read your audio on their servers. Vertano does the same work locally, for nothing. Explore what it does:</p>
+      <div class="next-grid rv">
+        <a class="next" href="/features/">
+          <span class="k">Features</span>
+          <h3>Everything it does</h3>
+          <p>Private by default, batch folders, nine reasons it earns a place in your dock.</p>
+        </a>
+        <a class="next" href="/youtube-captions/">
+          <span class="k">YouTube Captions</span>
+          <h3>Clean and translate captions</h3>
+          <p>Fix doubled auto-caption lines, then export translated .srt and .vtt subtitle tracks.</p>
+        </a>
+        <a class="next" href="/languages/">
+          <span class="k">Languages</span>
+          <h3>100 languages, Urdu first</h3>
+          <p>Urdu to English built in, multi-language output, and three model sizes to pick from.</p>
+        </a>
+      </div>
+      <a class="gh-banner rv" href="/download/">
+        <b>Ready?</b>
+        <span>Free on Mac, Windows, Linux, and Android. <u>Go to the download page</u>.</span>
+      </a>
+    </section>
+  </div>
+
+  <script is:inline>
+    // transcript typewriter (home only)
+    const urText='آج ہم پروجیکٹ کی ٹائم لائن پر بات کریں گے۔';
+    const enText='↳ Today we will talk about the project timeline.';
+    const statText='8 files · queue done in 41s · saved beside sources';
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function type(el,text,speed){return new Promise(res=>{
+      if(reduce){el.textContent=text;return res()}
+      let i=0;el.innerHTML='<span class="caret"></span>';
+      const iv=setInterval(()=>{
+        i++;el.innerHTML=text.slice(0,i)+'<span class="caret"></span>';
+        if(i>=text.length){clearInterval(iv);el.textContent=text;res()}
+      },speed)})}
+    async function loop(){
+      const ur=document.getElementById('line-ur'),en=document.getElementById('line-en'),st=document.getElementById('line-stat');
+      if(!ur)return;
+      for(;;){
+        ur.textContent='';en.textContent='';st.textContent='';
+        await type(ur,urText,36);
+        await new Promise(r=>setTimeout(r,400));
+        await type(en,enText,24);
+        await new Promise(r=>setTimeout(r,450));
+        st.textContent=statText;
+        if(reduce)break;
+        await new Promise(r=>setTimeout(r,6500));
+      }
+    }
+    loop();
+  </script>
+</Base>

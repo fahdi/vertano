@@ -38,13 +38,21 @@ htmlcov/
 .coverage
 *.cover
 
-# Project specific - exclude JS app files
+# Project specific - exclude legacy root JS app files
 /src/
 public/
 /index.html
 package*.json
 tsconfig*.json
 vite.config.ts
+
+# ...but the Astro marketing site under web/ must be tracked (the rules
+# above target the abandoned root React app, not web/).
+!/web/public/
+!/web/public/**
+!/web/package.json
+!/web/package-lock.json
+!/web/tsconfig.json
 vitest.config.ts
 eslint.config.js
 

@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Can Vertano transcribe Urdu and translate it to English?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Urdu is first-class in Vertano. It transcribes Urdu speech and, with one toggle, translates the transcript to clean English, or keeps the original Urdu script. Around 100 languages are supported.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does translation work offline?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Transcription runs fully on-device. Translation to English is produced by the transcription engine itself. Additional target languages use on-device translation with language packs that download once, then run locally.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the difference between the three models?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Efficient is fast and light for single-language recordings. Enhanced improves accuracy on accents and noisy rooms. Maximum is built for multilingual and Indic-language audio, including code-switching mid-sentence.',
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title="100 languages, Urdu to English, and three model sizes — Vertano"
+  description="Vertano transcribes around 100 languages with first-class Urdu, translates transcripts to English on device, saves one file per target language, and lets you pick from three speech models tuned for speed, accuracy, or multilingual audio."
+  ogTitle="Languages, translation, and models"
+  ogDescription="100 languages, Urdu to English built in, multi-language output, and three model sizes."
+  schema={schema}
+>
+  <div class="wrap">
+    <section>
+      <div class="sec-label rv">Exhibit C &amp; I</div>
+      <h1 class="rv">Speak in any language.<br /><em>Read it in English.</em></h1>
+      <p class="lede rv" style="margin-top:18px">Vertano recognizes around 100 languages and treats Urdu as first-class, not an afterthought. Translate to English with one toggle, or export a transcript in several languages at once, all on your own machine.</p>
+
+      <div class="statement rv">
+        <h3>Urdu → English, <em>built in.</em></h3>
+        <p>One toggle turns Urdu, Hindi, Arabic, Punjabi, Pashto, or any of 100 languages into clean English text. Switch translation off to keep the original script, or set the language manually when a short clip confuses auto-detect. And when English is not enough, check more languages under Translate To: each transcript is saved once per language, translated on your device.</p>
+      </div>
+
+      <div class="prose rv">
+        <h3>Three models, chosen by capability</h3>
+        <ul>
+          <li><strong>Efficient.</strong> Fast and light. Great for clear, single-language recordings and quick drafts.</li>
+          <li><strong>Enhanced.</strong> Sharper accuracy on accents, mixed audio, and noisy rooms.</li>
+          <li><strong>Maximum.</strong> Built for multilingual and Indic-language audio, including code-switching mid-sentence.</li>
+        </ul>
+        <p>Only the model you choose downloads, and it is yours to keep. You can hold more than one and switch between them per job.</p>
+
+        <h3>How translation runs</h3>
+        <p>Transcription is always on-device. Translation to English is produced by the transcription engine itself, so it works even in airplane mode. Additional target languages use on-device translation: a language pack downloads once, then everything runs locally with nothing uploaded.</p>
+
+        <h3>The honest limits</h3>
+        <p>On the Mac app, multi-language translation uses Apple's language packs, which cover roughly 25 target languages. A few languages, including Urdu, Bengali, Persian, Punjabi, and Pashto, are not available as translation targets yet. Transcribing those languages and translating them to English still works; the gap is only translating into them.</p>
+      </div>
+
+      <a class="gh-banner rv" href="/download/">
+        <b>Ready?</b>
+        <span>Free on Mac, Windows, Linux, and Android. <u>Download Vertano</u> and pick your model on first launch.</span>
+      </a>
+
+      <div class="next-grid rv">
+        <a class="next" href="/youtube-captions/">
+          <span class="k">Related</span>
+          <h3>YouTube caption cleanup</h3>
+          <p>Clean and translate downloaded subtitle files too.</p>
+        </a>
+        <a class="next" href="/features/">
+          <span class="k">Overview</span>
+          <h3>All features</h3>
+          <p>Private, offline, batch, free. The full case.</p>
+        </a>
+        <a class="next" href="/app/">
+          <span class="k">No install</span>
+          <h3>Try in the browser</h3>
+          <p>Transcribe and translate without downloading anything.</p>
+        </a>
+      </div>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/Base.astro';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Why do downloaded YouTube captions have every line twice?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'YouTube auto-generated captions are "rolling" captions: each cue repeats the previous completed line before adding new words, so a downloaded .srt or .vtt shows most lines duplicated. Vertano detects that structure and rebuilds a clean, correctly timed track.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can Vertano translate subtitles into other languages?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. After cleaning, Vertano can translate the caption track into every language you select and export one correctly timed .srt or .vtt per language, ready to re-upload. Translation runs on your device.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does cleaning captions upload my file anywhere?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Caption cleanup and translation both run entirely on your own machine. The original file is never modified and nothing is uploaded.',
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title="Clean and translate YouTube captions (.srt / .vtt) offline — Vertano"
+  description="Downloaded YouTube auto-captions come with every line doubled. Vertano removes the rolling duplication, rebuilds a correctly timed track, and exports translated .srt and .vtt subtitle files. Fully on-device, free."
+  ogTitle="YouTube caption cleanup and translation"
+  ogDescription="Fix doubled auto-caption lines and export translated .srt / .vtt subtitle tracks, on your own machine."
+  schema={schema}
+>
+  <div class="wrap">
+    <section>
+      <div class="sec-label rv">Exhibit G</div>
+      <h1 class="rv">YouTube captions,<br /><em>cleaned and translated.</em></h1>
+      <p class="lede rv" style="margin-top:18px">Download a caption file from any video, drop it on Vertano, and get back a clean, correctly timed subtitle track — plus translated versions ready to re-upload. Nothing leaves your machine.</p>
+
+      <div class="statement rv">
+        <h3>The doubled-line problem, <em>solved.</em></h3>
+        <p>YouTube auto-generated captions are "rolling" captions: every cue repeats the previous completed line before adding new words. Download the .srt or .vtt and most lines appear twice, with timing that overlaps itself. Vertano recognizes that exact structure and rebuilds one clean line per moment, correctly timed.</p>
+      </div>
+
+      <div class="prose rv">
+        <h3>What Vertano does with a caption file</h3>
+        <ul>
+          <li><strong>Removes the rolling duplication.</strong> Doubled lines collapse into a single clean caption, with gaps and timing preserved.</li>
+          <li><strong>Keeps everything timed.</strong> The cleaned track stays a valid subtitle file you can load into any player or re-upload to YouTube.</li>
+          <li><strong>Translates on device.</strong> Pick target languages and Vertano writes one correctly timed <code>.srt</code> or <code>.vtt</code> per language, translated locally.</li>
+          <li><strong>Leaves the original alone.</strong> Your downloaded file is never modified; cleaned and translated tracks are saved alongside it.</li>
+          <li><strong>Handles both formats.</strong> SubRip <code>.srt</code> and WebVTT <code>.vtt</code>, in and out.</li>
+        </ul>
+
+        <h3>Manually authored captions pass through untouched</h3>
+        <p>Only the rolling auto-caption pattern is rewritten. Hand-authored subtitle files and karaoke-style tracks are recognized and left exactly as they are, so nothing you crafted by hand gets flattened.</p>
+
+        <h3>Honest about translation coverage</h3>
+        <p>On the Mac app, translation uses Apple's on-device language packs. A handful of languages Apple does not yet cover, such as Urdu, Bengali, Persian, Punjabi, and Pashto, will not translate, but the cleaned source-language track is still produced. Audio in those languages still transcribes and translates to English through the transcription engine itself.</p>
+      </div>
+
+      <a class="gh-banner rv" href="/download/">
+        <b>Try it</b>
+        <span>Free on Mac, Windows, and Linux. <u>Download Vertano</u>, or clean a caption file in the <a href="/app/">browser app</a>.</span>
+      </a>
+
+      <div class="next-grid rv">
+        <a class="next" href="/languages/">
+          <span class="k">Related</span>
+          <h3>Languages &amp; translation</h3>
+          <p>The 100-language range and how on-device translation works.</p>
+        </a>
+        <a class="next" href="/features/">
+          <span class="k">Overview</span>
+          <h3>All features</h3>
+          <p>Everything Vertano does, in one place.</p>
+        </a>
+        <a class="next" href="/app/">
+          <span class="k">No install</span>
+          <h3>Try in the browser</h3>
+          <p>Clean a caption file without downloading anything.</p>
+        </a>
+      </div>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vertano Web: Transcribe Audio in Your Browser, No Install</title>
+<meta name="description" content="Drop audio files and get transcripts back right in your browser. Free and private, running entirely on your device. No install, no accounts, nothing uploaded.">
+<meta property="og:title" content="Vertano Web: transcribe in your browser">
+<meta property="og:description" content="Free browser-based batch audio transcription. No install, nothing uploaded, runs on your device.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vertano.app/app/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FAF7F0">
+<script>
+// Theme before first paint: manual choice wins, else day/night by local clock.
+(function(){
+  var saved=null;try{saved=localStorage.getItem('sd-theme')}catch(e){}
+  var h=new Date().getHours();
+  var auto=(h>=7&&h<19)?'light':'dark';
+  document.documentElement.dataset.theme=saved||auto;
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400;0,700;0,900;1,400;1,900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F0;
+  --paper-2:#F3EEE2;
+  --sheet:#FFFEFA;
+  --ink:#17150F;
+  --ink-2:#3B372E;
+  --dim:#6E675C;
+  --rule:#DCD5C8;
+  --red:#B3261E;
+  --red-2:#8C1B15;
+  --mono:'Courier Prime',ui-monospace,monospace;
+  --slab:'Besley',Georgia,serif;
+}
+/* chambers at night */
+:root[data-theme="dark"]{
+  --paper:#141209;
+  --paper-2:#1D1A10;
+  --sheet:#1B1810;
+  --ink:#EDE6D4;
+  --ink-2:#CDC5B0;
+  --dim:#948C79;
+  --rule:#37321F;
+  --red:#D6564C;
+  --red-2:#E4756C;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden;touch-action:pan-x pan-y}
+body{background:var(--paper);color:var(--ink);font-family:var(--slab);font-size:17px;line-height:1.65;overflow-x:clip;touch-action:pan-x pan-y;overflow-wrap:break-word}
+a{color:inherit}
+::selection{background:var(--red);color:var(--sheet)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 28px}
+
+/* ---------- header (matches main site) ---------- */
+header{border-bottom:1px solid var(--ink)}
+.head-in{display:flex;align-items:center;justify-content:space-between;padding-top:20px;padding-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-weight:700;font-size:19px;text-decoration:none}
+.brand svg{width:34px;height:34px}
+.nav{display:flex;align-items:center;gap:24px;font-family:var(--mono);font-size:13px;flex-wrap:wrap}
+.nav a{text-decoration:none;color:var(--ink-2);padding:6px 0;min-height:32px;display:inline-flex;align-items:center}
+.nav a:hover{color:var(--red);text-decoration:underline;text-underline-offset:4px}
+.theme-btn{
+  cursor:pointer;background:none;border:1px solid var(--ink-2);color:var(--ink-2);
+  font-size:16px;line-height:1;
+  width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:4px;flex:none;
+}
+.theme-btn:hover{border-color:var(--red);color:var(--red)}
+@media(max-width:720px){
+  .head-in{flex-direction:column;align-items:flex-start;gap:12px}
+  .nav{gap:14px 18px;font-size:12.5px;row-gap:10px}
+}
+.case-line{
+  border-top:1px solid var(--rule);font-family:var(--mono);font-size:11.5px;color:var(--dim);
+  letter-spacing:.08em;padding:8px 0 9px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+
+/* ---------- page ---------- */
+.hero{padding-top:56px;padding-bottom:36px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:18px}
+h1{font-weight:900;font-size:clamp(34px,5.4vw,52px);line-height:1.05;letter-spacing:-.015em;overflow-wrap:break-word;margin-bottom:16px}
+h1 em{font-style:italic;color:var(--red)}
+.lede{color:var(--ink-2);max-width:64ch;font-size:17px}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;color:var(--dim);text-decoration:none;margin-top:20px}
+.back-link:hover{color:var(--red)}
+
+section{padding:0 0 56px}
+
+/* ---------- pleading paper base (reused) ---------- */
+.pleading{position:relative;background:var(--sheet);border:1px solid var(--ink)}
+
+/* ---------- first-run / model status ---------- */
+.notice{border:1px solid var(--ink);background:var(--sheet);padding:18px 22px;margin:28px 0;font-family:var(--mono);font-size:13.5px;color:var(--ink-2);line-height:1.7}
+.notice b{color:var(--red);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px}
+#model-status{margin-top:16px}
+.progress-track{background:var(--paper-2);border:1px solid var(--rule);height:10px;margin-top:10px;overflow:hidden}
+.progress-bar{background:var(--red);height:100%;width:0%;transition:width .2s ease}
+#device-note{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-top:10px}
+
+/* ---------- mode picker (offline / cloud) ---------- */
+.mode-picker{margin:28px 0}
+.mode-picker > .mode-label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.mode-cards{grid-template-columns:1fr}}
+.mode-card{
+  text-align:left;cursor:pointer;background:var(--sheet);border:1.5px solid var(--ink-2);
+  padding:18px 20px;font-family:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;
+  transition:border-color .15s ease,background .15s ease;
+}
+.mode-card:hover{border-color:var(--red)}
+.mode-card.active{border-color:var(--red);border-width:2px;background:var(--paper-2)}
+.mode-card:disabled,.mode-card[aria-disabled="true"]{cursor:not-allowed;opacity:.55}
+.mode-card:disabled:hover,.mode-card[aria-disabled="true"]:hover{border-color:var(--ink-2)}
+.mode-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mode-card-title{font-family:var(--slab);font-weight:900;font-size:18px}
+.mode-card-badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:3px 8px;flex:none}
+.mode-card.active .mode-card-badge{color:var(--red);border-color:var(--red)}
+.mode-card-copy{font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6}
+.mode-card-note{font-family:var(--mono);font-size:12px;color:var(--dim);line-height:1.5}
+.mode-card-note.mode-unavailable{color:var(--red)}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin:26px 0;font-family:var(--mono);font-size:13.5px}
+.control{display:flex;flex-direction:column;gap:6px}
+.control label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+select{
+  font-family:var(--mono);font-size:13.5px;background:var(--sheet);color:var(--ink);
+  border:1.5px solid var(--ink);padding:9px 12px;min-width:180px;
+}
+.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer}
+.toggle-row input{width:18px;height:18px;accent-color:var(--red)}
+.output-list{display:flex;flex-direction:column;gap:8px}
+.output-list .toggle-row{font-size:13.5px}
+
+/* ---------- drop zone ---------- */
+.drop-zone{
+  border:2px dashed var(--ink-2);background:var(--sheet);padding:52px 24px;
+  text-align:center;font-family:var(--mono);transition:border-color .15s ease,background .15s ease;
+}
+.drop-zone.drag-over{border-color:var(--red);background:var(--paper-2)}
+.drop-zone p{color:var(--ink-2);font-size:14px;margin-bottom:18px}
+.drop-zone .dz-title{font-family:var(--slab);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.dz-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+.btn{
+  font-family:var(--mono);font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;
+  padding:13px 22px;border:1.5px solid var(--ink);display:inline-flex;align-items:center;gap:10px;
+  background:transparent;color:var(--ink);
+  transition:background .15s ease,color .15s ease;
+}
+.btn-primary{background:var(--ink);color:var(--sheet)}
+.btn-primary:hover{background:var(--red);border-color:var(--red)}
+.btn-ghost:hover{background:var(--paper-2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---------- queue ---------- */
+#queue-section{margin-top:40px}
+.queue-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.queue-head h2{font-size:20px;font-weight:900}
+#queue{border:1px solid var(--ink);background:var(--sheet)}
+.q-row{border-bottom:1px solid var(--rule);padding:16px 20px;display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center}
+.q-row:last-child{border-bottom:none}
+.q-name{font-family:var(--mono);font-size:13.5px;font-weight:700;min-width:0;overflow-wrap:break-word}
+.q-status{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.q-queued .q-status{color:var(--dim)}
+.q-transcribing .q-status{color:var(--red);font-weight:700}
+.q-done .q-status{color:var(--ink-2)}
+.q-failed .q-status{color:var(--red);font-weight:700}
+.q-actions{display:flex;gap:8px;white-space:nowrap}
+.btn-mini{
+  font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;
+  padding:6px 10px;border:1px solid var(--ink-2);background:transparent;color:var(--ink-2);
+}
+.btn-mini:hover{border-color:var(--red);color:var(--red)}
+.q-transcript{grid-column:1/-1;font-family:var(--mono);font-size:13.5px;color:var(--ink-2);line-height:1.7;
+  background:var(--paper-2);padding:14px 16px;margin-top:4px;white-space:pre-wrap;overflow-wrap:break-word}
+.q-error{grid-column:1/-1;font-family:var(--mono);font-size:13px;color:var(--red);margin-top:4px}
+@media(max-width:600px){
+  .q-row{grid-template-columns:1fr;gap:8px}
+  .q-status,.q-actions{justify-self:start}
+}
+
+#download-all-btn{margin-top:20px}
+
+/* footer (reused) */
+footer{border-top:1px solid var(--ink);margin-top:30px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:22px 0 46px}
+.foot a{color:var(--ink-2)}
+.foot a:hover{color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap head-in">
+    <a class="brand" href="../index.html">
+      <svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="28" fill="#17150F"/><path fill="#FAF7F0" d="M8 122 C10 103 24 95 35 91.5 C37.5 90.6 38.5 88.5 38.5 85 C31 79 25.5 69 25 57 C24.3 37 35 19.5 52 18.2 C61.5 17.6 69.8 23.2 71.8 31 C72.7 34.6 72.5 37.6 71.6 40 L78 48.8 C79 50.4 78.2 51.8 76.2 52 L70.9 52.5 C70.4 54 71 54.8 73 55.4 L74.6 56.6 L64.8 59.6 L72.6 63 C72.6 64.9 71.3 66.2 69 66.8 C69.6 69.8 68 72.9 64.4 74.9 C62.2 76.1 60 77.8 57.9 79.1 C56.3 83.6 56 87.6 56.5 91.5 C70 95.5 78.6 104 80.5 122 Z"/><g stroke="#FAF7F0" stroke-width="4" stroke-linecap="round" fill="none"><path d="M86 50 L97 43"/><path d="M88 60.5 L103 60.5"/><path d="M86 71 L97 78"/></g><g stroke-linecap="round" fill="none"><path d="M86 88 C94 85.8 104 86.6 118 85.6" stroke="#FAF7F0" stroke-width="4.6"/><path d="M86 99 C96 96.8 106 98 116 96.8" stroke="#FAF7F0" stroke-width="4.6"/><path d="M86 110 C92 108.2 98 109.2 104 108.2" stroke="#B3261E" stroke-width="4.6"/></g></svg>
+      Vertano
+    </a>
+    <nav class="nav">
+      <a href="../index.html#download">Native apps</a>
+      <a href="https://github.com/fahdi/stenodrop">GitHub</a>
+      <button class="theme-btn" id="theme-btn" aria-live="polite"></button>
+    </nav>
+  </div>
+  <div class="wrap"><div class="case-line">
+    <span>IN THE MATTER OF: YOUR UNREAD AUDIO</span>
+    <span>EXHIBIT: BROWSER EDITION</span>
+    <span>FILED: LOCALLY, ALWAYS</span>
+  </div></div>
+</header>
+
+<div class="wrap hero">
+  <div class="kicker">Runs in your browser · no install</div>
+  <h1>Drop audio. <em>Read it here.</em></h1>
+  <p class="lede">Same promise as the desktop and Android apps: nothing leaves your device. Everything runs right in this browser tab. No account, no server, no upload.</p>
+  <a class="back-link" href="../index.html">← Back to Vertano</a>
+</div>
+
+<div class="wrap">
+<section>
+  <div class="notice">
+    <b>First run</b> downloads the voice-recognition software once (about 205&nbsp;MB). After that, your browser keeps it cached and later visits start instantly. Your audio is never uploaded. Everything happens right here on this device.
+  </div>
+
+  <div id="model-status" hidden>
+    <div class="notice" style="margin-top:0">
+      <span id="model-status-text">Preparing model…</span>
+      <div class="progress-track"><div class="progress-bar" id="model-progress-bar"></div></div>
+    </div>
+  </div>
+  <div id="device-note" hidden></div>
+
+  <div class="mode-picker">
+    <div class="mode-label">Processing mode</div>
+    <div class="mode-cards" id="mode-cards" role="group" aria-label="Processing mode">
+      <button type="button" class="mode-card active" id="mode-offline-btn" data-mode="offline" aria-pressed="true">
+        <div class="mode-card-head">
+          <span class="mode-card-title">Offline</span>
+          <span class="mode-card-badge">Default</span>
+        </div>
+        <p class="mode-card-copy">Nothing ever leaves your device. Your audio is processed right here in this browser tab, free, private, and available even without an internet connection. Accuracy is good and works well for most audio.</p>
+      </button>
+      <button type="button" class="mode-card" id="mode-cloud-btn" data-mode="cloud" aria-pressed="false">
+        <div class="mode-card-head">
+          <span class="mode-card-title">Cloud</span>
+          <span class="mode-card-badge">Best accuracy</span>
+        </div>
+        <p class="mode-card-copy">Your audio is sent to a server running a much larger, more accurate model, then the transcript is sent back. The audio isn't stored; it's deleted right after processing. Requires an internet connection.</p>
+        <p class="mode-card-note" id="mode-cloud-note" hidden></p>
+      </button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control">
+      <label for="language-select">Language</label>
+      <select id="language-select"></select>
+    </div>
+    <div class="control">
+      <label>Outputs</label>
+      <div class="output-list">
+        <label class="toggle-row"><input type="checkbox" id="output-original" checked> Original language transcript</label>
+        <label class="toggle-row"><input type="checkbox" id="output-english" checked> English translation</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="drop-zone pleading" id="drop-zone">
+    <div class="dz-title">Drop audio files or a folder</div>
+    <p>wav · mp3 · m4a · flac · ogg · opus · aiff · caf · mp4 · mov · webm</p>
+    <div class="dz-btns">
+      <button class="btn btn-primary" id="pick-files-btn" type="button">Choose files</button>
+      <button class="btn btn-ghost" id="pick-folder-btn" type="button">Choose folder</button>
+    </div>
+    <input type="file" id="file-input" multiple accept="audio/*,video/*" hidden>
+    <input type="file" id="folder-input" webkitdirectory multiple hidden>
+  </div>
+
+  <div id="queue-section" hidden>
+    <div class="queue-head">
+      <h2>Batch queue</h2>
+      <button class="btn btn-primary" id="download-all-btn" hidden type="button">↓ Download all as .zip</button>
+    </div>
+    <div id="queue"></div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <span>Vertano Web. Free, browser-based batch transcription.</span>
+      <span><a href="https://github.com/fahdi/stenodrop">GitHub</a> · <a href="https://github.com/fahdi/stenodrop/issues">Issues</a> · built on <a href="https://github.com/huggingface/transformers.js">Transformers.js</a></span>
+      <span>made by <a href="https://fahdmurtaza.com">Fahd Murtaza</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// theme toggle: manual override persists; returning to the auto value clears it
+const themeBtn=document.getElementById('theme-btn');
+const autoTheme=()=>{const h=new Date().getHours();return(h>=7&&h<19)?'light':'dark'};
+function paintTheme(){
+  const t=document.documentElement.dataset.theme;
+  themeBtn.textContent=t==='dark'?'☾':'☀';
+  const label='Switch to '+(t==='dark'?'day':'night')+' theme';
+  themeBtn.setAttribute('aria-label',label);
+  themeBtn.setAttribute('title',label);
+  document.querySelector('meta[name="theme-color"]').setAttribute('content',t==='dark'?'#141209':'#FAF7F0');
+}
+themeBtn.addEventListener('click',()=>{
+  const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  document.documentElement.dataset.theme=next;
+  try{next===autoTheme()?localStorage.removeItem('sd-theme'):localStorage.setItem('sd-theme',next)}catch(e){}
+  paintTheme();
+});
+paintTheme();
+</script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
