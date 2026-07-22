@@ -1,4 +1,4 @@
-use stenodrop_lib::model::{model_path, validate_download, MIN_VALID_SIZE};
+use vertano_lib::model::{model_path, validate_download, MIN_VALID_SIZE};
 
 #[test]
 fn rejects_non_200_status_even_with_large_body() {
@@ -23,9 +23,9 @@ fn accepts_full_download() {
 }
 
 #[test]
-fn model_path_is_under_stenodrop_app_data() {
+fn model_path_is_under_vertano_app_data() {
     let p = model_path();
     let s = p.to_string_lossy();
-    assert!(s.contains("StenoDrop"), "path was {s}");
+    assert!(s.contains("Vertano"), "path was {s}");
     assert!(s.ends_with("ggml-small.bin"), "path was {s}");
 }

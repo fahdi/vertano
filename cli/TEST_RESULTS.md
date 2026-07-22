@@ -1,4 +1,4 @@
-# StenoDrop - Test Results & Demo
+# Vertano - Test Results & Demo
 
 ## 🎉 What Was Built
 
@@ -57,13 +57,13 @@ cd cli
 source venv/bin/activate
 
 # Transcribe + translate to English
-python stenodrop.py ../test-audio/REC001.WAV --no-summarize
+python vertano.py ../test-audio/REC001.WAV --no-summarize
 
 # Test with Spanish
-python stenodrop.py ../test-audio/generated/spanish.mp3 --no-summarize
+python vertano.py ../test-audio/generated/spanish.mp3 --no-summarize
 
 # Save to file
-python stenodrop.py audio.mp3 --no-summarize --output result.txt
+python vertano.py audio.mp3 --no-summarize --output result.txt
 ```
 
 ### With AI Summary (Requires OpenAI API Key)
@@ -71,10 +71,10 @@ python stenodrop.py audio.mp3 --no-summarize --output result.txt
 export OPENAI_API_KEY="sk-your-key-here"
 
 # Short summary
-python stenodrop.py audio.mp3 --summary short
+python vertano.py audio.mp3 --summary short
 
 # Medium summary with markdown
-python stenodrop.py audio.mp3 --summary medium --format md --output result.md
+python vertano.py audio.mp3 --summary medium --format md --output result.md
 ```
 
 ---
@@ -106,7 +106,7 @@ python stenodrop.py audio.mp3 --summary medium --format md --output result.md
 ### To Enable Full Features:
 1. Get OpenAI API key: https://platform.openai.com/api-keys
 2. Set environment variable: `export OPENAI_API_KEY="sk-..."`
-3. Run with summary: `python stenodrop.py audio.mp3 --summary short`
+3. Run with summary: `python vertano.py audio.mp3 --summary short`
 
 ### To Test More Samples:
 ```bash
@@ -114,8 +114,8 @@ python stenodrop.py audio.mp3 --summary medium --format md --output result.md
 python generate_test_samples.py
 
 # Test each language
-python stenodrop.py ../test-audio/generated/french.mp3
-python stenodrop.py ../test-audio/generated/japanese.mp3
+python vertano.py ../test-audio/generated/french.mp3
+python vertano.py ../test-audio/generated/japanese.mp3
 ```
 
 ---
@@ -124,7 +124,7 @@ python stenodrop.py ../test-audio/generated/japanese.mp3
 
 ```
 cli/
-├── stenodrop.py       # Main CLI tool ⭐
+├── vertano.py       # Main CLI tool ⭐
 ├── summarize.py            # AI summarization module
 ├── transcribe_v2.py        # Basic transcription
 ├── generate_test_samples.py # Test audio generator

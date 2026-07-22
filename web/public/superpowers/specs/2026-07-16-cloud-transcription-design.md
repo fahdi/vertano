@@ -1,4 +1,4 @@
-# StenoDrop Web — Optional Cloud Transcription (Large Model)
+# Vertano Web — Optional Cloud Transcription (Large Model)
 
 Date: 2026-07-16 · Status: Approved (web app only, opt-in mode picker)
 

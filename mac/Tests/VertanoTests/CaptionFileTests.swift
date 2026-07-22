@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import StenoDrop
+@testable import Vertano
 
 final class CaptionFileTests: XCTestCase {
 

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
-use stenodrop_lib::engine::output::output_path;
+use vertano_lib::engine::output::output_path;
 
 fn claimed(paths: &[&str]) -> HashSet<PathBuf> {
     paths.iter().map(PathBuf::from).collect()

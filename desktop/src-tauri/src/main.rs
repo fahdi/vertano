@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    stenodrop_lib::run()
+    vertano_lib::run()
 }

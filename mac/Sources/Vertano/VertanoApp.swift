@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct StenoDropApp: App {
+struct VertanoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var queue = JobQueue.shared
 
@@ -44,7 +44,7 @@ struct StenoDropApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("StenoDrop") {
+        WindowGroup("Vertano") {
             RootView()
                 .environmentObject(queue)
                 .frame(minWidth: 560, minHeight: 480)

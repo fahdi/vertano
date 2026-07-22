@@ -12,10 +12,10 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Build and zip StenoDrop.app
+      - name: Build and zip Vertano.app
         run: |
           cd mac && ./scripts/make-app.sh
-          cd dist && ditto -c -k --keepParent StenoDrop.app "StenoDrop-${GITHUB_REF_NAME#v}-macos.zip"
+          cd dist && ditto -c -k --keepParent Vertano.app "Vertano-${GITHUB_REF_NAME#v}-macos.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: macos

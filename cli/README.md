@@ -1,4 +1,4 @@
-# StenoDrop CLI Prototype
+# Vertano CLI Prototype
 
 ## Quick Start
 

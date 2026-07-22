@@ -1,11 +1,11 @@
-# StenoDrop — SEO Strategy
+# Vertano — SEO Strategy
 
 Date: 2026-07-14 · Template: SaaS (adapted for free/open-source desktop app)
 Owner: solo (Fahd) · Budget: ~$20/yr (domain) + time · Horizon: 12 months
 
 ## Positioning statement (the sentence every page supports)
 
-> StenoDrop is the free Mac app that turns a folder of audio into transcripts —
+> Vertano is the free Mac app that turns a folder of audio into transcripts —
 > offline, private, in 100 languages including Urdu → English.
 
 ## Goals & KPIs
@@ -45,7 +45,7 @@ lists, listicles), not head terms.
 ## Channel strategy (SEO is only half the traffic)
 
 For a free Mac utility, these outrank blogging in ROI order:
-1. **Homebrew cask** (`brew install --cask stenodrop`) — discovery + trust + backlink
+1. **Homebrew cask** (`brew install --cask vertano`) — discovery + trust + backlink
 2. **awesome-whisper PR** (sindresorhus list) — the canonical directory for this niche
 3. **"MacWhisper alternatives" listicles** — email each author; they update yearly
 4. **AlternativeTo / MacUpdate / Product Hunt** — profile + launch (PH in month 2–3
@@ -62,7 +62,7 @@ For a free Mac utility, these outrank blogging in ROI order:
 
 ## GEO / AI search readiness
 
-- `llms.txt` at site root summarizing what StenoDrop is, requirements, install.
+- `llms.txt` at site root summarizing what Vertano is, requirements, install.
 - Q&A-formatted FAQ section ("Is it really free?", "Does audio leave my Mac?",
   "Can it translate Urdu to English?") — passage-level citability for
   AI Overviews / Perplexity / ChatGPT browsing.
@@ -80,7 +80,7 @@ per-page canonicals as pages multiply.
 
 | Risk | Mitigation |
 |---|---|
-| github.io subpath caps authority | Register stenodrop.com/.app NOW; 301 via Pages custom domain |
+| github.io subpath caps authority | Register vertano.app/.app NOW; 301 via Pages custom domain |
 | Apple ships Urdu in SpeechAnalyzer | Our moat is batch+translate UX, not just language support |
 | MacWhisper adds a bigger free tier | Stay the *simplest* free option; speed of iteration |
 | Language pages read as doorway spam | Each page gets unique examples, script samples, real caveats |

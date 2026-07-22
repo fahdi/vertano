@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use stenodrop_lib::engine::scan::{self, AUDIO_EXTENSIONS};
+use vertano_lib::engine::scan::{self, AUDIO_EXTENSIONS};
 
 fn touch(path: &Path) {
     fs::create_dir_all(path.parent().unwrap()).unwrap();

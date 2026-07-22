@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import StenoDrop
+@testable import Vertano
 
 private enum FakeError: Error, Equatable {
     case boom

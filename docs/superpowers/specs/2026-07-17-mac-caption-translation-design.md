@@ -1,4 +1,4 @@
-# StenoDrop Mac — Translate Downloaded Caption Files (.srt/.vtt)
+# Vertano Mac — Translate Downloaded Caption Files (.srt/.vtt)
 
 Date: 2026-07-17 · Status: FROZEN for implementation after two adversarial
 review rounds (r1: 33 findings/11 revisions; r2: 31 findings/11 revisions,
@@ -10,7 +10,7 @@ normative rules below without surfacing the deviation.
 Users can already download a YouTube video's captions (via yt-dlp, browser
 extensions, or YouTube Studio for their own videos) as a `.srt` or `.vtt`
 file. There's no audio to run through whisper — the file already **is** a
-transcript with per-line timing. The ask: drop that file into StenoDrop
+transcript with per-line timing. The ask: drop that file into Vertano
 and get back cleaned and translated caption files, still correctly timed,
 usable for re-upload as subtitles.
 

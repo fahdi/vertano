@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
-use stenodrop_lib::queue::{run_queue, JobStatus, QueueState};
+use vertano_lib::queue::{run_queue, JobStatus, QueueState};
 
 fn touch(path: &Path) {
     fs::create_dir_all(path.parent().unwrap()).unwrap();

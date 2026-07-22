@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use stenodrop_lib::engine::decode::{decode_to_mono_16k, TARGET_SAMPLE_RATE};
+use vertano_lib::engine::decode::{decode_to_mono_16k, TARGET_SAMPLE_RATE};
 
 fn fixture(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

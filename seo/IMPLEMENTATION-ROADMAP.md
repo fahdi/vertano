@@ -1,10 +1,10 @@
-# StenoDrop — SEO Implementation Roadmap
+# Vertano — SEO Implementation Roadmap
 
 ## Phase 1 · Foundation (weeks 1–4) — mostly one sitting each
 
 | # | Task | Effort | Depends on |
 |---|---|---|---|
-| 1 | Register stenodrop.com (+ .app if cheap) | 10 min + $ | Fahd only |
+| 1 | Register vertano.app (+ .app if cheap) | 10 min + $ | Fahd only |
 | 2 | Custom domain on Pages (CNAME, HTTPS, www→apex) | 30 min | 1 |
 | 3 | OG image (in progress this session) | done | — |
 | 4 | sitemap.xml + robots.txt + llms.txt | 30 min | — |

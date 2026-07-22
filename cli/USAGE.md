@@ -1,4 +1,4 @@
-# StenoDrop CLI - Complete Usage Guide
+# Vertano CLI - Complete Usage Guide
 
 ## What You Have Now ✅
 
@@ -24,7 +24,7 @@ A fully working CLI tool that:
 ```bash
 cd cli
 source venv/bin/activate
-python stenodrop.py audio.mp3 --no-summarize
+python vertano.py audio.mp3 --no-summarize
 ```
 
 ### With AI Summary (requires OpenAI API key)
@@ -33,12 +33,12 @@ python stenodrop.py audio.mp3 --no-summarize
 export OPENAI_API_KEY="sk-your-key-here"
 
 # Run with summary
-python stenodrop.py audio.mp3 --summary short
+python vertano.py audio.mp3 --summary short
 ```
 
 ### All Options
 ```bash
-python stenodrop.py audio.mp3 \
+python vertano.py audio.mp3 \
   --model small \              # Model size: tiny, base, small, medium, large-v2
   --summary medium \           # Summary length: short, medium, long
   --format md \                # Output format: text, md, markdown
@@ -58,7 +58,7 @@ export OPENAI_API_KEY="sk-your-key-here"
 
 Or pass it directly:
 ```bash
-python stenodrop.py audio.mp3 --api-key "sk-your-key-here"
+python vertano.py audio.mp3 --api-key "sk-your-key-here"
 ```
 
 ---

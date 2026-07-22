@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-StenoDrop - Complete CLI
+Vertano - Complete CLI
 Transcribe audio in any language → English transcription + AI summary
 """
 
@@ -46,14 +46,14 @@ def transcribe_audio(audio_path, model_size="small"):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="StenoDrop - Transcribe audio in any language to English with AI summary",
+        description="Vertano - Transcribe audio in any language to English with AI summary",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  stenodrop audio.mp3
-  stenodrop meeting.m4a --summary medium --format md
-  stenodrop lecture.wav --no-summarize --output transcript.txt
-  stenodrop audio.mp3 --model base --summary short
+  vertano audio.mp3
+  vertano meeting.m4a --summary medium --format md
+  vertano lecture.wav --no-summarize --output transcript.txt
+  vertano audio.mp3 --model base --summary short
         """
     )
     

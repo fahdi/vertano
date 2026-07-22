@@ -1,4 +1,4 @@
-# StenoDrop Mac — Model Tiers + Multi-Language Translation
+# Vertano Mac — Model Tiers + Multi-Language Translation
 
 Date: 2026-07-17 · Status: Approved (Mac app only; Desktop/Android parity is future work)
 
@@ -105,7 +105,7 @@ better fit than hand-rolling an NLLB port:
 - Deployment target moves from macOS 14 to **macOS 15** in
   `Package.swift` to use the mature batch API. This is a real
   compatibility trade-off worth confirming: does dropping macOS 14
-  support matter given StenoDrop's current install base?
+  support matter given Vertano's current install base?
 - The framework does not work in the iOS/macOS Simulator or SwiftPM
   test hosts — translation-dependent code paths are covered by unit
   tests via a `TranslationEngine` protocol that production code depends

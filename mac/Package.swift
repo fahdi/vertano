@@ -2,17 +2,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "StenoDrop",
+    name: "Vertano",
     platforms: [.macOS(.v15)],
     targets: [
         .executableTarget(
-            name: "StenoDrop",
-            path: "Sources/StenoDrop"
+            name: "Vertano",
+            path: "Sources/Vertano"
         ),
         .testTarget(
-            name: "StenoDropTests",
-            dependencies: ["StenoDrop"],
-            path: "Tests/StenoDropTests",
+            name: "VertanoTests",
+            dependencies: ["Vertano"],
+            path: "Tests/VertanoTests",
             resources: [.copy("Fixtures")]
         ),
     ]

@@ -13,12 +13,12 @@ pub const MODEL_URL: &str =
 /// truncated body, even if the HTTP layer called it a success.
 pub const MIN_VALID_SIZE: u64 = 400_000_000;
 
-/// Per-OS app-data dir: macOS `~/Library/Application Support/StenoDrop/models`,
-/// Windows `%APPDATA%\StenoDrop\models`, Linux `~/.local/share/StenoDrop/models`.
+/// Per-OS app-data dir: macOS `~/Library/Application Support/Vertano/models`,
+/// Windows `%APPDATA%\Vertano\models`, Linux `~/.local/share/Vertano/models`.
 pub fn models_dir() -> PathBuf {
     dirs::data_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("StenoDrop")
+        .join("Vertano")
         .join("models")
 }
 

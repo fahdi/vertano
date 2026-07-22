@@ -1,12 +1,12 @@
 [package]
-name = "stenodrop"
+name = "vertano"
 version = "0.2.0"
-description = "StenoDrop — offline batch audio transcription for Windows and Linux"
+description = "Vertano — offline batch audio transcription for Windows and Linux"
 edition = "2021"
 license = "MIT"
 
 [lib]
-name = "stenodrop_lib"
+name = "vertano_lib"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

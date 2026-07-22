@@ -1,6 +1,6 @@
-# StenoDrop Desktop (Windows + Linux)
+# Vertano Desktop (Windows + Linux)
 
-Tauri v2 + Rust port of StenoDrop for Windows and Linux. macOS keeps the
+Tauri v2 + Rust port of Vertano for Windows and Linux. macOS keeps the
 native SwiftUI app in `../mac/` — see
 `../docs/superpowers/specs/2026-07-14-cross-platform-design.md`.
 
@@ -69,9 +69,9 @@ cargo test --test whisper_integration -- --ignored --nocapture
 
 Model location per OS (`dirs::data_dir()`):
 
-- macOS: `~/Library/Application Support/StenoDrop/models/ggml-small.bin`
-- Windows: `%APPDATA%\StenoDrop\models\ggml-small.bin`
-- Linux: `~/.local/share/StenoDrop/models/ggml-small.bin`
+- macOS: `~/Library/Application Support/Vertano/models/ggml-small.bin`
+- Windows: `%APPDATA%\Vertano\models\ggml-small.bin`
+- Linux: `~/.local/share/Vertano/models/ggml-small.bin`
 
 Audio fixtures in `src-tauri/tests/fixtures/` are committed. To regenerate:
 
@@ -101,7 +101,7 @@ platform natively (see issue #13 / `release.yml`).
 
 ## Notes
 
-- Config: `productName` StenoDrop, identifier `com.fahdi.stenodrop`,
+- Config: `productName` Vertano, identifier `com.fahdi.vertano`,
   version 0.2.0, min window 700×520.
 - Settings (language, translate toggle) persist in webview localStorage and
   are pushed to the Rust side on change.

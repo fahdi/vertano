@@ -1,4 +1,4 @@
-# StenoDrop (Mac App)
+# Vertano (Mac App)
 
 Native macOS app for batch audio transcription and caption translation. Drag in
 files or folders: audio/video gets transcribed locally, and downloaded caption
@@ -29,10 +29,10 @@ file and are also viewable/copyable in the app.
 ## Caption files (.srt / .vtt)
 
 Drop a downloaded caption file (e.g. from `yt-dlp`, a browser extension, or
-YouTube Studio) and StenoDrop:
+YouTube Studio) and Vertano:
 
 - **Cleans it.** YouTube auto-generated captions download as "rolling"
-  captions where every line appears twice; StenoDrop detects that structure
+  captions where every line appears twice; Vertano detects that structure
   and produces a deduplicated, correctly retimed track. Manually authored and
   karaoke-style files pass through untouched.
 - **Always saves the cleaned source track** as `name.<lang>.srt`/`.vtt` plus a
@@ -61,7 +61,7 @@ Requires macOS 15+.
 Click **Record** in the toolbar to capture from the microphone with a live
 transcript that updates roughly every 15 seconds (using the current language
 and translate settings). Stopping saves the full recording plus its transcript
-to `~/Documents/StenoDrop/` as `Recording <date> at <time>.wav` and `.txt`.
+to `~/Documents/Vertano/` as `Recording <date> at <time>.wav` and `.txt`.
 First use prompts for microphone access — everything stays on your Mac.
 
 ## Prerequisites
@@ -72,7 +72,7 @@ brew install whisper-cpp ffmpeg
 
 Whisper models are not bundled. On first launch the app shows a setup screen
 that checks for both tools and offers a one-click download of the Efficient
-model (to `~/Library/Application Support/StenoDrop/models/ggml-small.bin`).
+model (to `~/Library/Application Support/Vertano/models/ggml-small.bin`).
 Enhanced and Maximum are downloaded on demand from Settings → Model.
 
 ## Development
@@ -92,11 +92,11 @@ cd mac
 ./scripts/make-app.sh
 ```
 
-This builds a release binary, wraps it as `dist/StenoDrop.app`, and ad-hoc
+This builds a release binary, wraps it as `dist/Vertano.app`, and ad-hoc
 signs it for local use (no notarization). Install it with:
 
 ```bash
-cp -R dist/StenoDrop.app /Applications/
+cp -R dist/Vertano.app /Applications/
 ```
 
 ## Notes

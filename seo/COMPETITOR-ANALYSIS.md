@@ -1,4 +1,4 @@
-# StenoDrop — Competitor Analysis
+# Vertano — Competitor Analysis
 
 Date: 2026-07-14 · Method: SERP research (no paid keyword API connected)
 
@@ -39,7 +39,7 @@ Date: 2026-07-14 · Method: SERP research (no paid keyword API connected)
 
 ## E-E-A-T / distribution signals competitors have that we lack
 
-| Signal | MacWhisper | Aiko | StenoDrop today |
+| Signal | MacWhisper | Aiko | Vertano today |
 |---|---|---|---|
 | Custom domain | yes | App Store page | github.io subpath |
 | Notarized/signed build | yes | yes | ad-hoc only |
@@ -54,7 +54,7 @@ Closing these table gaps is worth more than any blog post in months 1–2.
 
 - **"urdu audio to english text" / "transcribe urdu voice notes"** — no Mac
   app targets this; SERPs are low-quality web converters. Same for Punjabi
-  and Pashto. This is StenoDrop's most defensible organic wedge.
+  and Pashto. This is Vertano's most defensible organic wedge.
 - **"batch transcribe audio files mac" / "transcribe a folder of audio"** —
   MacWhisper mentions batch as a feature bullet; nobody owns a dedicated page.
 - **"transcribe whatsapp voice notes mac"** — high-intent, diaspora-heavy

@@ -1,4 +1,4 @@
-# StenoDrop — Site Structure
+# Vertano — Site Structure
 
 All pages are static HTML under `docs/` (GitHub Pages root), same design
 system as index.html. Flat URLs — no folders needed at this scale.

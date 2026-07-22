@@ -29,7 +29,7 @@ enum EngineError: LocalizedError {
 struct WhisperEngine: Sendable {
     static var modelsDirectory: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("StenoDrop/models", isDirectory: true)
+            .appendingPathComponent("Vertano/models", isDirectory: true)
     }
 
     /// The tier used for transcription, persisted across launches. Absent
@@ -116,7 +116,7 @@ struct WhisperEngine: Sendable {
         guard modelIsReady else { throw EngineError.modelMissing }
 
         let workDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stenodrop-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("vertano-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: workDir) }
 

@@ -1,14 +1,14 @@
-# StenoDrop
+# Vertano
 
 Free, offline transcription for people with folders full of recordings.
 Drop in audio files, whole directories, or downloaded YouTube captions;
-StenoDrop transcribes and translates everything on your own machine.
+Vertano transcribes and translates everything on your own machine.
 Nothing is uploaded, nothing is metered, and the transcript lands right
 next to each source file.
 
-**[Website](https://fahdi.github.io/stenodrop/)** ·
-**[Try it in your browser](https://fahdi.github.io/stenodrop/app/)** ·
-**[Downloads](https://github.com/fahdi/stenodrop/releases/latest)**
+**[Website](https://fahdi.github.io/vertano/)** ·
+**[Try it in your browser](https://fahdi.github.io/vertano/app/)** ·
+**[Downloads](https://github.com/fahdi/vertano/releases/latest)**
 
 ## What it does
 
@@ -19,7 +19,7 @@ next to each source file.
   clean English text. On the Mac app you can also check multiple target
   languages and get one transcript file per language, translated locally.
 - **YouTube caption cleanup.** Auto-generated captions download with
-  every line doubled. Drop the `.srt` or `.vtt` on StenoDrop and get a
+  every line doubled. Drop the `.srt` or `.vtt` on Vertano and get a
   clean, correctly timed track, plus translated versions ready to
   re-upload. Manually authored files pass through untouched.
 - **Models by capability.** Efficient for quick single-language work,
@@ -35,11 +35,11 @@ next to each source file.
 
 | Platform | Status | Where |
 |---|---|---|
-| macOS 15+ | Native Swift app | [Releases](https://github.com/fahdi/stenodrop/releases/latest) |
-| Windows 10/11 | Tauri app | [Releases](https://github.com/fahdi/stenodrop/releases/latest) |
-| Linux | AppImage / .deb | [Releases](https://github.com/fahdi/stenodrop/releases/latest) |
+| macOS 15+ | Native Swift app | [Releases](https://github.com/fahdi/vertano/releases/latest) |
+| Windows 10/11 | Tauri app | [Releases](https://github.com/fahdi/vertano/releases/latest) |
+| Linux | AppImage / .deb | [Releases](https://github.com/fahdi/vertano/releases/latest) |
 | Android 8+ | Beta APK, sideload | [stenodrop-android](https://github.com/fahdi/stenodrop-android/releases) |
-| Any browser | No install | [Web app](https://fahdi.github.io/stenodrop/app/) |
+| Any browser | No install | [Web app](https://fahdi.github.io/vertano/app/) |
 | iPhone | Planned | [stenodrop-ios](https://github.com/fahdi/stenodrop-ios) |
 
 Betas are unsigned: on macOS, right-click and Open the first time; on
@@ -76,7 +76,7 @@ brew install whisper-cpp ffmpeg
 cd mac
 swift test                # 120+ unit tests
 ./scripts/e2e-test.sh     # real engine smoke test
-./scripts/make-app.sh     # → dist/StenoDrop.app (ad-hoc signed)
+./scripts/make-app.sh     # → dist/Vertano.app (ad-hoc signed)
 ```
 
 Details, architecture notes, and known limitations: [mac/README.md](mac/README.md).

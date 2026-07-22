@@ -2,7 +2,7 @@ import Foundation
 import Translation
 import XCTest
 
-@testable import StenoDrop
+@testable import Vertano
 
 private enum FakeSessionError: Error, Equatable {
     case offline

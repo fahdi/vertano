@@ -6,7 +6,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-FIXTURE="Tests/StenoDropTests/Fixtures/real-yt-dlp-rollup.en.vtt"
+FIXTURE="Tests/VertanoTests/Fixtures/real-yt-dlp-rollup.en.vtt"
 [[ -f "$FIXTURE" ]] || { echo "Missing fixture: $FIXTURE"; exit 1; }
 
 echo "Running caption parse/reflow/pipeline smoke tests against $FIXTURE ..."

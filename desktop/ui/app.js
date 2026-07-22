@@ -1,4 +1,4 @@
-// StenoDrop desktop UI — plain JS over the global Tauri API.
+// Vertano desktop UI — plain JS over the global Tauri API.
 "use strict";
 
 const { invoke } = window.__TAURI__.core;
@@ -222,7 +222,7 @@ async function main() {
     }
     const quit = await dialog.ask(
       "Transcription is still running. Quit anyway?",
-      { title: "StenoDrop", kind: "warning" },
+      { title: "Vertano", kind: "warning" },
     );
     if (quit) await appWindow.destroy();
   });

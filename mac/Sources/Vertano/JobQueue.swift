@@ -232,7 +232,7 @@ final class JobQueue: ObservableObject {
             case .captions(var job) = jobs[index]
         else {
             let fallback = FileManager.default.temporaryDirectory
-                .appendingPathComponent("stenodrop-\(languageCode)")
+                .appendingPathComponent("vertano-\(languageCode)")
             return (fallback.appendingPathExtension("vtt"), fallback.appendingPathExtension("txt"))
         }
         var claimed = claimedPaths(excludingJob: jobID)

@@ -72,7 +72,7 @@ struct RecordingView: View {
     private var statusLabel: String {
         if recorder.isFinishing { return "Finishing — transcribing the last chunk…" }
         if recorder.isRecording { return "Recording — transcript updates about every 15 seconds" }
-        return "Saves WAV + transcript to ~/Documents/StenoDrop"
+        return "Saves WAV + transcript to ~/Documents/Vertano"
     }
 
     private var transcriptArea: some View {
@@ -113,7 +113,7 @@ struct RecordingView: View {
         if recorder.permissionDenied {
             HStack(spacing: 8) {
                 Image(systemName: "mic.slash.fill").foregroundStyle(.red)
-                Text("Microphone access is denied. Allow StenoDrop under Privacy & Security → Microphone.")
+                Text("Microphone access is denied. Allow Vertano under Privacy & Security → Microphone.")
                     .font(.caption)
                 Button("Open System Settings") {
                     if let url = URL(

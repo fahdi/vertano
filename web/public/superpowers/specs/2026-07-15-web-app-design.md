@@ -1,4 +1,4 @@
-# StenoDrop Web — Design Spec
+# Vertano Web — Design Spec
 
 Date: 2026-07-15 · Status: Approved (user request: web app, hosted free)
 
@@ -24,7 +24,7 @@ browser, no install, no server, no ongoing cost.
   browser-native runtime. Same model family, same 100 languages, same
   translate capability; different file format (ONNX, not GGML) and a
   different (likely somewhat smaller, browser-appropriate) download size.
-- **Hosted at `fahdi.github.io/stenodrop/app/`** — lives in this repo at
+- **Hosted at `fahdi.github.io/vertano/app/`** — lives in this repo at
   `docs/app/`, deployed by the same GitHub Pages pipeline as the
   marketing site. No new repo, no new hosting account.
 - **Web Worker** runs the model load + inference so the UI thread stays

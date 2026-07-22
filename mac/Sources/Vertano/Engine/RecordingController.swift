@@ -83,7 +83,7 @@ final class RecordingController: ObservableObject {
         }
 
         let wavURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stenodrop-rec-\(UUID().uuidString).wav")
+            .appendingPathComponent("vertano-rec-\(UUID().uuidString).wav")
         let engine = AVAudioEngine()
         do {
             let input = engine.inputNode
@@ -128,7 +128,7 @@ final class RecordingController: ObservableObject {
 
     /// Stops capture, flushes and transcribes the remaining audio, then moves
     /// the full-session WAV (plus a matching .txt transcript) into
-    /// `destinationFolder` — default `~/Documents/StenoDrop/`.
+    /// `destinationFolder` — default `~/Documents/Vertano/`.
     func stop(saveTo destinationFolder: URL? = nil) async {
         guard isRecording else { return }
         isFinishing = true
@@ -171,7 +171,7 @@ final class RecordingController: ObservableObject {
 
         let folder = destinationFolder
             ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("StenoDrop", isDirectory: true)
+                .appendingPathComponent("Vertano", isDirectory: true)
         do {
             try FileManager.default.createDirectory(
                 at: folder, withIntermediateDirectories: true)
@@ -246,7 +246,7 @@ final class RecordingController: ObservableObject {
             guard WhisperEngine.modelIsReady else { throw EngineError.modelMissing }
 
             let workDir = FileManager.default.temporaryDirectory
-                .appendingPathComponent("stenodrop-chunk-\(UUID().uuidString)", isDirectory: true)
+                .appendingPathComponent("vertano-chunk-\(UUID().uuidString)", isDirectory: true)
             try FileManager.default.createDirectory(
                 at: workDir, withIntermediateDirectories: true)
             defer { try? FileManager.default.removeItem(at: workDir) }

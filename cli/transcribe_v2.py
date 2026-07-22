@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-StenoDrop v2 - Improved with pipeline API
+Vertano v2 - Improved with pipeline API
 Transcribe audio in any language to English
 """
 
@@ -53,7 +53,7 @@ def transcribe_audio(audio_path, model_size="small", translate=True):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="StenoDrop v2 - Transcribe audio to English")
+    parser = argparse.ArgumentParser(description="Vertano v2 - Transcribe audio to English")
     parser.add_argument("audio_file", help="Path to audio file")
     parser.add_argument("--model", default="small", choices=["tiny", "base", "small", "medium", "large-v2"],
                         help="Whisper model size (default: small)")

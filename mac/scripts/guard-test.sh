@@ -8,10 +8,10 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-SRC="Sources/StenoDrop/Engine/TextScript.swift"
+SRC="Sources/Vertano/Engine/TextScript.swift"
 [[ -f "$SRC" ]] || { echo "FAIL: $SRC not found"; exit 1; }
 
-WORK="$(mktemp -d /tmp/stenodrop-guard-test.XXXXXX)"
+WORK="$(mktemp -d /tmp/vertano-guard-test.XXXXXX)"
 trap 'rm -rf "$WORK"' EXIT
 
 cat > "$WORK/main.swift" <<'EOF'

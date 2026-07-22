@@ -48,7 +48,7 @@ struct ContentView: View {
 
     private var toolbar: some View {
         HStack(spacing: 16) {
-            Label("StenoDrop", systemImage: "waveform")
+            Label("Vertano", systemImage: "waveform")
                 .font(.headline)
             Spacer()
             Picker("Language", selection: $queue.languageCode) {

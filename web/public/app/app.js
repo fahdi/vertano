@@ -15,7 +15,7 @@ const CLOUD_API_BASE = "https://api.isupercoder.com/stenodrop";
 const CLOUD_HEALTH_TIMEOUT_MS = 3500;
 const CLOUD_REQUEST_TIMEOUT_MS = 120000;
 
-// Same 19-language + auto list as the native apps (mac/Sources/StenoDrop/JobQueue.swift).
+// Same 19-language + auto list as the native apps (mac/Sources/Vertano/JobQueue.swift).
 const LANGUAGES = [
   ["auto", "Auto-detect"],
   ["ur", "Urdu"],

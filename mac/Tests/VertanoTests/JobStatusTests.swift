@@ -1,10 +1,10 @@
 import XCTest
 
-@testable import StenoDrop
+@testable import Vertano
 
 final class JobStatusTests: XCTestCase {
 
-    // The quit guard (StenoDropApp.applicationShouldTerminate) depends on
+    // The quit guard (VertanoApp.applicationShouldTerminate) depends on
     // isActive being true for every in-flight state — a translating caption
     // job must block quit exactly like a transcribing audio job.
     func testTranslatingIsActive() {

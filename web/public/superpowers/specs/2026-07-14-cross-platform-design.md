@@ -1,4 +1,4 @@
-# StenoDrop Cross-Platform Design (Windows + Linux)
+# Vertano Cross-Platform Design (Windows + Linux)
 
 Date: 2026-07-14 · Status: Approved (user directive: full SDLC + TDD)
 
@@ -29,7 +29,7 @@ src-tauri/src/
   queue.rs             sequential job runner, status events → UI
   model.rs             ggml-small download w/ progress, size+status validation (mirror Mac fixes)
   commands.rs          tauri commands: ingest, start, cancel, settings
-ui/                    plain HTML/CSS/JS (no framework), StenoDrop court-transcript brand
+ui/                    plain HTML/CSS/JS (no framework), Vertano court-transcript brand
 ```
 
 ## TDD contract (tests written before implementation)

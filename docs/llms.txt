@@ -8,7 +8,7 @@
 > tracks. Nothing is uploaded. It works fully offline.
 
 Key facts:
-- Price: free, no account, no usage limits, open source (github.com/fahdi/stenodrop)
+- Price: free, no account, no usage limits, open source (github.com/fahdi/vertano)
 - Platforms: native Swift app for macOS 15+; Tauri (Rust) app for Windows 10+ and Linux; mobile planned
 - Languages: ~100 via Whisper, including first-class Urdu; one-toggle translation to English, plus multi-language transcript translation on device (Apple language packs, about 25 target languages)
 - Models: three switchable tiers on macOS: Efficient (fast, single-language), Enhanced (accents and noise), Maximum (multilingual and Indic-language audio with code-switching)
@@ -20,5 +20,5 @@ Key facts:
 - macOS prerequisites: brew install whisper-cpp ffmpeg; Windows/Linux builds bundle the engine
 - Known limitation: Apple Translation does not cover Urdu, Bengali, Persian, Punjabi, or Pashto as translation targets; caption files in those languages still get the cleaned track
 
-Downloads: https://github.com/fahdi/stenodrop/releases/latest
+Downloads: https://github.com/fahdi/vertano/releases/latest
 Site: https://vertano.app/

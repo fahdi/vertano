@@ -18,5 +18,5 @@ pub fn run() {
             commands::download_model,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running StenoDrop");
+        .expect("error while running Vertano");
 }

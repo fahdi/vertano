@@ -1,13 +1,13 @@
 //! Real-model integration test. Run explicitly with:
 //!   cargo test --test whisper_integration -- --ignored --nocapture
 //! Requires ggml-small.bin in the per-OS app-data dir
-//! (macOS: ~/Library/Application Support/StenoDrop/models/).
+//! (macOS: ~/Library/Application Support/Vertano/models/).
 
 use std::path::PathBuf;
 
-use stenodrop_lib::engine::decode::decode_to_mono_16k;
-use stenodrop_lib::engine::whisper::Transcriber;
-use stenodrop_lib::model;
+use vertano_lib::engine::decode::decode_to_mono_16k;
+use vertano_lib::engine::whisper::Transcriber;
+use vertano_lib::model;
 
 fn fixture(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

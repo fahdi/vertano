@@ -1,8 +1,8 @@
-# StenoDrop Test Suite
+# Vertano Test Suite
 
 ## Overview
 
-Comprehensive TDD test suite for StenoDrop CLI using pytest.
+Comprehensive TDD test suite for Vertano CLI using pytest.
 
 ## Test Results
 
@@ -30,7 +30,7 @@ pytest -v -m "not slow"
 pytest -v --cov=. --cov-report=html
 
 # Run specific test class
-pytest -v test_stenodrop.py::TestSummarization
+pytest -v test_vertano.py::TestSummarization
 ```
 
 ### Integration Tests (with real audio)
@@ -39,7 +39,7 @@ pytest -v test_stenodrop.py::TestSummarization
 pytest -v -m "slow"
 
 # Run specific integration test
-pytest -v test_stenodrop.py::TestCLIIntegration::test_real_transcription_tiny_model
+pytest -v test_vertano.py::TestCLIIntegration::test_real_transcription_tiny_model
 ```
 
 ### All Tests
@@ -143,7 +143,7 @@ open htmlcov/index.html
 
 Current coverage:
 - `summarize.py`: 92%
-- `stenodrop.py`: 22% (CLI code harder to test, integration tests needed)
+- `vertano.py`: 22% (CLI code harder to test, integration tests needed)
 - Overall: Adequate coverage for critical business logic
 
 ---
@@ -187,7 +187,7 @@ def test_new_feature(mocker):
 
 ### Running Single Test
 ```bash
-pytest -v test_stenodrop.py::TestClass::test_method -s
+pytest -v test_vertano.py::TestClass::test_method -s
 ```
 
 ---

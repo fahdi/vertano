@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
-# Build StenoDrop.app from the Swift package.
+# Build Vertano.app from the Swift package.
 # Usage: ./scripts/make-app.sh [output-dir]   (default: mac/dist)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 OUT_DIR="${1:-dist}"
-APP="$OUT_DIR/StenoDrop.app"
+APP="$OUT_DIR/Vertano.app"
 
 echo "Building release binary..."
 swift build -c release
 
-BIN=".build/release/StenoDrop"
+# SwiftPM executable target is named Vertano (internal); the bundle
+# presents entirely as Vertano.
+BIN=".build/release/Vertano"
 [[ -x "$BIN" ]] || { echo "Build product not found: $BIN"; exit 1; }
 
 echo "Assembling $APP"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$BIN" "$APP/Contents/MacOS/StenoDrop"
+cp "$BIN" "$APP/Contents/MacOS/Vertano"
 cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -25,15 +27,15 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>StenoDrop</string>
+    <string>Vertano</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>com.fahdi.stenodrop</string>
+    <string>com.fahdi.vertano</string>
     <key>CFBundleName</key>
-    <string>StenoDrop</string>
+    <string>Vertano</string>
     <key>CFBundleDisplayName</key>
-    <string>StenoDrop</string>
+    <string>Vertano</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -45,7 +47,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSMicrophoneUsageDescription</key>
-    <string>StenoDrop records audio only to transcribe it on your Mac. Nothing is uploaded.</string>
+    <string>Vertano records audio only to transcribe it on your Mac. Nothing is uploaded.</string>
     <key>NSHumanReadableCopyright</key>
     <string>© 2026 Fahd Murtaza</string>
 </dict>

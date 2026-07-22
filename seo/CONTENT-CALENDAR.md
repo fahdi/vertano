@@ -1,4 +1,4 @@
-# StenoDrop — Content Calendar
+# Vertano — Content Calendar
 
 Cadence: 1 page/week max (solo maintainer, quality gate ≥ 600 specific words).
 Every page ships with screenshots from the real app.
