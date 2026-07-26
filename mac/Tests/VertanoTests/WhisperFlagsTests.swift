@@ -24,4 +24,43 @@ final class WhisperFlagsTests: XCTestCase {
         flags.useGPU = false
         XCTAssertTrue(flags.arguments().contains("-ng"))
     }
+
+    // MARK: - E: latency decoding flags
+
+    func testEmitsThreadCount() {
+        let args = WhisperFlags(threads: 8).arguments()
+        XCTAssertTrue(consecutive(args, "-t", "8"))
+    }
+
+    func testDefaultsToGreedyDecoding() {
+        // Beam size 1 / best-of 1 is greedy: fastest, lowest latency per chunk.
+        let args = WhisperFlags().arguments()
+        XCTAssertTrue(consecutive(args, "-bs", "1"))
+        XCTAssertTrue(consecutive(args, "-bo", "1"))
+    }
+
+    func testDefaultsToNoTemperatureFallback() {
+        XCTAssertTrue(WhisperFlags().arguments().contains("-nf"))
+    }
+
+    func testClampThreadsFloorsAtOne() {
+        XCTAssertEqual(WhisperFlags.clampThreads(0), 1)
+        XCTAssertEqual(WhisperFlags.clampThreads(-5), 1)
+    }
+
+    func testClampThreadsCapsAtReasonableMaximum() {
+        XCTAssertLessThanOrEqual(WhisperFlags.clampThreads(999), 16)
+    }
+
+    // MARK: - helpers
+
+    private func consecutive(_ haystack: [String], _ needle: String...) -> Bool {
+        guard !needle.isEmpty, haystack.count >= needle.count else { return false }
+        for start in 0...(haystack.count - needle.count) where
+            Array(haystack[start..<start + needle.count]) == needle
+        {
+            return true
+        }
+        return false
+    }
 }
