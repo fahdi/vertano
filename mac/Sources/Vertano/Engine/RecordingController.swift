@@ -92,7 +92,9 @@ final class RecordingController: ObservableObject {
                 throw RecordingError.noInputDevice
             }
             let sink = try CaptureSink(sessionWavURL: wavURL, inputFormat: inputFormat)
-            input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { buffer, _ in
+            // @Sendable keeps this closure nonisolated; AVFAudio invokes it on its
+            // real-time queue, which would trap the inherited @MainActor isolation.
+            input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { @Sendable buffer, _ in
                 sink.process(buffer)
             }
             engine.prepare()
