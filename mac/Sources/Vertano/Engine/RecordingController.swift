@@ -45,8 +45,6 @@ final class RecordingController: ObservableObject {
 
     /// Whisper's native input rate; everything is captured straight to this.
     nonisolated static let sampleRate = 16_000.0
-    /// ~15 s of 16 kHz mono audio per live-transcription chunk.
-    nonisolated private static let chunkSampleCount = 240_000
     /// whisper-cli rejects clips shorter than ~1 s; pad the final remainder
     /// with silence up to ~1.05 s.
     nonisolated private static let minimumWhisperSamples = 16_800
@@ -64,6 +62,15 @@ final class RecordingController: ObservableObject {
     private var pendingChunkCount = 0
     private var startedAt = Date()
     private var sessionWavURL: URL?
+    /// The resident whisper-server for this session, or nil when it is
+    /// unavailable and the per-chunk whisper-cli fallback is in use.
+    private var liveServer: WhisperServer?
+    /// Chunk size resolved at record-start: short with the resident server,
+    /// long for the CLI fallback. See LiveTranscribePlan / LiveChunking.
+    private var activeChunkSampleCount = LiveChunking.legacyChunkSampleCount(sampleRate: 16_000)
+    /// The model that drove the live scroll this session; when it is the fast
+    /// instant model, the saved file is re-transcribed at the accurate tier.
+    private var liveModelUsed: LiveModelChoice = .accurate(.efficient)
 
     // MARK: - Start
 
@@ -111,18 +118,59 @@ final class RecordingController: ObservableObject {
 
         startedAt = Date()
         isRecording = true
+        await bootLivePipeline()
         tickTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard let self, self.isRecording else { return }
                 self.elapsed = Date().timeIntervalSince(self.startedAt)
-                if let sink = self.sink, sink.pendingSampleCount >= Self.chunkSampleCount {
+                if let sink = self.sink, sink.pendingSampleCount >= self.activeChunkSampleCount {
                     self.enqueueChunk(sink.drainPendingSamples())
                 }
                 if let captureError = self.sink?.takeCaptureError() {
                     self.errorMessage = captureError
                 }
             }
+        }
+    }
+
+    /// Resolves and boots the live pipeline from what's installed: the
+    /// resident whisper-server with a fast model and short chunks when
+    /// available (fixes A-F), otherwise the per-chunk whisper-cli fallback.
+    private func bootLivePipeline() async {
+        let plan = LiveTranscribePlan.make(
+            serverAvailable: WhisperServer.binaryPath != nil,
+            instantReady: WhisperEngine.instantModelIsReady,
+            activeTier: WhisperEngine.activeTier,
+            sampleRate: Int(Self.sampleRate))
+        liveModelUsed = plan.liveModel
+        activeChunkSampleCount = plan.chunkSampleCount
+
+        guard plan.useServer, liveModelIsReady(plan.liveModel) else {
+            // No server (or its model isn't downloaded): stay on the CLI path
+            // with the long chunk so we don't reload the model too often.
+            activeChunkSampleCount = LiveChunking.legacyChunkSampleCount(
+                sampleRate: Int(Self.sampleRate))
+            return
+        }
+
+        let server = WhisperServer()
+        let modelPath = WhisperEngine.liveModelPath(for: plan.liveModel).path
+        do {
+            try await server.start(modelPath: modelPath, extraFlags: WhisperFlags().arguments())
+            liveServer = server
+        } catch {
+            server.stop()
+            liveServer = nil
+            activeChunkSampleCount = LiveChunking.legacyChunkSampleCount(
+                sampleRate: Int(Self.sampleRate))
+        }
+    }
+
+    private func liveModelIsReady(_ choice: LiveModelChoice) -> Bool {
+        switch choice {
+        case .instant: WhisperEngine.instantModelIsReady
+        case .accurate(let tier): WhisperEngine.modelIsReady(for: tier)
         }
     }
 
@@ -163,8 +211,34 @@ final class RecordingController: ObservableObject {
         await chunkChain?.value
         chunkChain = nil
 
+        liveServer?.stop()
+        liveServer = nil
+
         saveSession(to: destinationFolder)
+        await refineSavedTranscriptIfNeeded()
         isFinishing = false
+    }
+
+    /// When the live scroll was driven by the fast instant model, re-transcribe
+    /// the finished recording once at the user's accurate tier and replace the
+    /// saved transcript (fix C). Best-effort: on any failure the live
+    /// transcript is kept.
+    private func refineSavedTranscriptIfNeeded() async {
+        guard case .instant = liveModelUsed, let wavURL = lastSavedURL else { return }
+        let tier = WhisperEngine.finalTranscriptionTier(activeTier: WhisperEngine.activeTier)
+        guard WhisperEngine.modelIsReady(for: tier) else { return }
+
+        let translate = JobQueue.shared.translatesToEnglish
+        let language = JobQueue.shared.languageCode
+        let refined = await Task.detached(priority: .userInitiated) { () -> String? in
+            try? WhisperEngine.transcribe(
+                wavURL, translateToEnglish: translate, language: language)
+        }.value
+
+        guard let refined, !refined.isEmpty else { return }
+        liveTranscript = refined
+        let txtURL = wavURL.deletingPathExtension().appendingPathExtension("txt")
+        try? refined.write(to: txtURL, atomically: true, encoding: .utf8)
     }
 
     private func saveSession(to destinationFolder: URL?) {
@@ -203,12 +277,27 @@ final class RecordingController: ObservableObject {
         pendingChunkCount += 1
         updateTranscriptionStatus()
         let previous = chunkChain
+        let server = liveServer
         chunkChain = Task {
             await previous?.value
-            let result = await Task.detached(priority: .userInitiated) {
-                Self.transcribeChunk(
-                    samples, translateToEnglish: translate, language: language)
-            }.value
+            let result: Result<String, Error>
+            if let server, server.isRunning {
+                // Resident-server path: encode in memory and POST, no temp
+                // file and no model reload (fixes A + B).
+                let wav = WAVEncoder.encode(samples, sampleRate: Int(Self.sampleRate))
+                do {
+                    let text = try await server.transcribe(
+                        wav: wav, language: language, translateToEnglish: translate)
+                    result = .success(text)
+                } catch {
+                    result = .failure(error)
+                }
+            } else {
+                result = await Task.detached(priority: .userInitiated) {
+                    Self.transcribeChunk(
+                        samples, translateToEnglish: translate, language: language)
+                }.value
+            }
             switch result {
             case .success(let text):
                 if !text.isEmpty {
