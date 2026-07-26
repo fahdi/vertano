@@ -50,6 +50,30 @@ struct WhisperEngine: Sendable {
         modelsDirectory.appendingPathComponent(tier.filename)
     }
 
+    // MARK: - Live vs. final model selection
+
+    /// The live scroll prefers the fast "instant" model when it is downloaded,
+    /// otherwise it reuses the user's accurate tier so live still works before
+    /// the instant model is fetched.
+    static func liveModelSelection(instantReady: Bool, activeTier: ModelTier) -> LiveModelChoice {
+        instantReady ? .instant : .accurate(activeTier)
+    }
+
+    static var instantModelIsReady: Bool {
+        let path = modelsDirectory.appendingPathComponent(LiveModel.instantFilename).path
+        let attrs = try? FileManager.default.attributesOfItem(atPath: path)
+        let size = (attrs?[.size] as? Int64) ?? 0
+        return size > LiveModel.instantMinimumValidSize
+    }
+
+    static func liveModelPath(for choice: LiveModelChoice) -> URL {
+        modelsDirectory.appendingPathComponent(choice.filename)
+    }
+
+    /// The saved recording is always re-transcribed at the user's chosen tier,
+    /// independent of whichever model drove the live scroll.
+    static func finalTranscriptionTier(activeTier: ModelTier) -> ModelTier { activeTier }
+
     static var modelPath: URL { modelPath(for: activeTier) }
 
     /// One-time migration from the app's pre-rename identity, so existing
