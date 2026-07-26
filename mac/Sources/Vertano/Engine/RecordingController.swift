@@ -70,7 +70,7 @@ final class RecordingController: ObservableObject {
     private var activeChunkSampleCount = LiveChunking.legacyChunkSampleCount(sampleRate: 16_000)
     /// The model that drove the live scroll this session; when it is the fast
     /// instant model, the saved file is re-transcribed at the accurate tier.
-    private var liveModelUsed: LiveModelChoice = .accurate(.efficient)
+    private var liveModelUsed: LiveModelChoice = .accurate(ModelTier.efficient.model)
 
     // MARK: - Start
 
@@ -141,7 +141,7 @@ final class RecordingController: ObservableObject {
         let plan = LiveTranscribePlan.make(
             serverAvailable: WhisperServer.binaryPath != nil,
             instantReady: WhisperEngine.instantModelIsReady,
-            activeTier: WhisperEngine.activeTier,
+            active: WhisperEngine.activeModel,
             sampleRate: Int(Self.sampleRate))
         liveModelUsed = plan.liveModel
         activeChunkSampleCount = plan.chunkSampleCount
@@ -170,7 +170,7 @@ final class RecordingController: ObservableObject {
     private func liveModelIsReady(_ choice: LiveModelChoice) -> Bool {
         switch choice {
         case .instant: WhisperEngine.instantModelIsReady
-        case .accurate(let tier): WhisperEngine.modelIsReady(for: tier)
+        case .accurate(let model): WhisperEngine.modelIsReady(for: model)
         }
     }
 
@@ -225,8 +225,8 @@ final class RecordingController: ObservableObject {
     /// transcript is kept.
     private func refineSavedTranscriptIfNeeded() async {
         guard case .instant = liveModelUsed, let wavURL = lastSavedURL else { return }
-        let tier = WhisperEngine.finalTranscriptionTier(activeTier: WhisperEngine.activeTier)
-        guard WhisperEngine.modelIsReady(for: tier) else { return }
+        let model = WhisperEngine.finalTranscriptionModel(active: WhisperEngine.activeModel)
+        guard WhisperEngine.modelIsReady(for: model) else { return }
 
         let translate = JobQueue.shared.translatesToEnglish
         let language = JobQueue.shared.languageCode

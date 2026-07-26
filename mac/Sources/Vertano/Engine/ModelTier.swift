@@ -23,6 +23,9 @@ enum ModelTier: String, CaseIterable, Codable, Identifiable {
         URL(string: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/\(filename)")!
     }
 
+    /// The catalog entry this curated tier maps to.
+    var model: WhisperModel { WhisperModel.named(filename)! }
+
     var title: String {
         switch self {
         case .efficient: "Efficient"

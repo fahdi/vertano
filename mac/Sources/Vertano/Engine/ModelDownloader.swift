@@ -5,8 +5,8 @@ final class ModelDownloader: NSObject, ObservableObject {
     @Published var progress: Double = 0
     @Published var isDownloading = false
     @Published var error: String?
-    /// The tier currently downloading, if any — nil when idle.
-    @Published private(set) var downloadingTier: ModelTier?
+    /// The model currently downloading, if any — nil when idle.
+    @Published private(set) var downloadingModel: WhisperModel?
 
     private var session: URLSession?
     private var task: URLSessionDownloadTask?
@@ -14,34 +14,44 @@ final class ModelDownloader: NSObject, ObservableObject {
     /// Pure validation shared by the download delegate and tests: a
     /// non-200 status or an undersized body (error page, truncated
     /// transfer) both need to fail before the file is trusted.
-    nonisolated static func validate(status: Int, size: Int64, tier: ModelTier) -> String? {
+    nonisolated static func validate(status: Int, size: Int64, minimumValidSize: Int64) -> String? {
         if status != 200 {
             return "Download failed (HTTP \(status)). Try again."
         }
-        if size < tier.minimumValidSize {
-            let mb = tier.minimumValidSize / 1_000_000
+        if size < minimumValidSize {
+            let mb = minimumValidSize / 1_000_000
             return "Download incomplete (\(size / 1_000_000) MB of ~\(mb) MB). "
                 + "Check your connection and try again."
         }
         return nil
     }
 
-    func start(tier: ModelTier = .default) {
+    nonisolated static func validate(status: Int, size: Int64, model: WhisperModel) -> String? {
+        validate(status: status, size: size, minimumValidSize: model.minimumValidSize)
+    }
+
+    nonisolated static func validate(status: Int, size: Int64, tier: ModelTier) -> String? {
+        validate(status: status, size: size, minimumValidSize: tier.minimumValidSize)
+    }
+
+    func start(tier: ModelTier = .default) { start(model: tier.model) }
+
+    func start(model: WhisperModel) {
         guard !isDownloading else { return }
         error = nil
         progress = 0
         isDownloading = true
-        downloadingTier = tier
+        downloadingModel = model
         try? FileManager.default.createDirectory(
             at: WhisperEngine.modelsDirectory, withIntermediateDirectories: true)
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         self.session = session
-        let task = session.downloadTask(with: tier.downloadURL)
+        let task = session.downloadTask(with: model.downloadURL)
         // Stashed on the task (thread-safe, no MainActor hop needed) so the
-        // nonisolated delegate callback can recover which tier this is
+        // nonisolated delegate callback can recover which model this is
         // without touching MainActor-isolated state before the temp file at
         // `location` is deleted.
-        task.taskDescription = tier.rawValue
+        task.taskDescription = model.filename
         self.task = task
         task.resume()
     }
@@ -62,7 +72,7 @@ final class ModelDownloader: NSObject, ObservableObject {
 
     private func finish(errorMessage: String?) {
         isDownloading = false
-        downloadingTier = nil
+        downloadingModel = nil
         progress = errorMessage == nil ? 1 : 0
         error = errorMessage
         task = nil
@@ -88,17 +98,17 @@ extension ModelDownloader: URLSessionDownloadDelegate {
         // Validate before moving: a 404/500 body or captive-portal page also
         // lands here "successfully". Work synchronously — `location` is
         // deleted when this method returns.
-        let tier = ModelTier(rawValue: downloadTask.taskDescription ?? "") ?? .default
+        let model = WhisperModel.named(downloadTask.taskDescription ?? "") ?? ModelTier.default.model
         var failure: String?
         let status = (downloadTask.response as? HTTPURLResponse)?.statusCode ?? 0
         let attrs = try? FileManager.default.attributesOfItem(atPath: location.path)
         let size = (attrs?[.size] as? Int64) ?? 0
 
-        if let message = Self.validate(status: status, size: size, tier: tier) {
+        if let message = Self.validate(status: status, size: size, model: model) {
             failure = message
         } else {
             do {
-                let dest = WhisperEngine.modelPath(for: tier)
+                let dest = WhisperEngine.modelPath(for: model)
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.moveItem(at: location, to: dest)
             } catch {

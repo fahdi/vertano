@@ -9,12 +9,12 @@ struct LiveTranscribePlan: Equatable {
     var chunkSampleCount: Int
 
     static func make(
-        serverAvailable: Bool, instantReady: Bool, activeTier: ModelTier, sampleRate: Int
+        serverAvailable: Bool, instantReady: Bool, active: WhisperModel, sampleRate: Int
     ) -> LiveTranscribePlan {
         LiveTranscribePlan(
             useServer: serverAvailable,
             liveModel: WhisperEngine.liveModelSelection(
-                instantReady: instantReady, activeTier: activeTier),
+                instantReady: instantReady, active: active),
             chunkSampleCount: LiveChunking.chunkSampleCount(
                 residentServer: serverAvailable, sampleRate: sampleRate))
     }

@@ -32,31 +32,47 @@ struct WhisperEngine: Sendable {
             .appendingPathComponent("Vertano/models", isDirectory: true)
     }
 
-    /// The tier used for transcription, persisted across launches. Absent
-    /// on fresh installs and on every pre-tier install (where it resolves
-    /// to `.efficient`, whose filename is the same `ggml-small.bin` those
-    /// installs already have — no forced re-download).
-    static var activeTier: ModelTier {
+    /// The model used for transcription, persisted across launches by
+    /// filename. Migrates from the older per-tier key so existing installs keep
+    /// their choice; defaults to the recommended model (ggml-small), whose file
+    /// pre-tier installs already have — no forced re-download.
+    static var activeModel: WhisperModel {
         get {
-            guard let raw = UserDefaults.standard.string(forKey: "modelTier"),
-                let tier = ModelTier(rawValue: raw)
-            else { return .default }
-            return tier
+            resolveActiveModel(
+                storedFilename: UserDefaults.standard.string(forKey: activeModelKey),
+                legacyTierRaw: UserDefaults.standard.string(forKey: legacyTierKey))
         }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "modelTier") }
+        set { UserDefaults.standard.set(newValue.filename, forKey: activeModelKey) }
     }
 
-    static func modelPath(for tier: ModelTier) -> URL {
-        modelsDirectory.appendingPathComponent(tier.filename)
+    private static let activeModelKey = "activeModelFilename"
+    private static let legacyTierKey = "modelTier"
+
+    /// Pure resolution so selection/migration is testable without UserDefaults:
+    /// a stored filename wins, else the legacy tier key, else the default.
+    static func resolveActiveModel(storedFilename: String?, legacyTierRaw: String?) -> WhisperModel {
+        if let storedFilename, let model = WhisperModel.named(storedFilename) { return model }
+        if let legacyTierRaw, let tier = ModelTier(rawValue: legacyTierRaw),
+            let model = WhisperModel.named(tier.filename)
+        {
+            return model
+        }
+        return ModelTier.default.model
     }
+
+    static func modelPath(for model: WhisperModel) -> URL {
+        modelsDirectory.appendingPathComponent(model.filename)
+    }
+
+    static func modelPath(for tier: ModelTier) -> URL { modelPath(for: tier.model) }
 
     // MARK: - Live vs. final model selection
 
     /// The live scroll prefers the fast "instant" model when it is downloaded,
-    /// otherwise it reuses the user's accurate tier so live still works before
+    /// otherwise it reuses the user's active model so live still works before
     /// the instant model is fetched.
-    static func liveModelSelection(instantReady: Bool, activeTier: ModelTier) -> LiveModelChoice {
-        instantReady ? .instant : .accurate(activeTier)
+    static func liveModelSelection(instantReady: Bool, active: WhisperModel) -> LiveModelChoice {
+        instantReady ? .instant : .accurate(active)
     }
 
     static var instantModelIsReady: Bool {
@@ -70,11 +86,11 @@ struct WhisperEngine: Sendable {
         modelsDirectory.appendingPathComponent(choice.filename)
     }
 
-    /// The saved recording is always re-transcribed at the user's chosen tier,
-    /// independent of whichever model drove the live scroll.
-    static func finalTranscriptionTier(activeTier: ModelTier) -> ModelTier { activeTier }
+    /// The saved recording is always re-transcribed with the user's chosen
+    /// model, independent of whichever model drove the live scroll.
+    static func finalTranscriptionModel(active: WhisperModel) -> WhisperModel { active }
 
-    static var modelPath: URL { modelPath(for: activeTier) }
+    static var modelPath: URL { modelPath(for: activeModel) }
 
     /// One-time migration from the app's pre-rename identity, so existing
     /// installs don't re-download 466 MB.
@@ -89,13 +105,15 @@ struct WhisperEngine: Sendable {
         try? fm.moveItem(at: legacy, to: destination)
     }
 
-    static func modelIsReady(for tier: ModelTier) -> Bool {
-        let attrs = try? FileManager.default.attributesOfItem(atPath: modelPath(for: tier).path)
+    static func modelIsReady(for model: WhisperModel) -> Bool {
+        let attrs = try? FileManager.default.attributesOfItem(atPath: modelPath(for: model).path)
         let size = (attrs?[.size] as? Int64) ?? 0
-        return size > tier.minimumValidSize
+        return size > model.minimumValidSize
     }
 
-    static var modelIsReady: Bool { modelIsReady(for: activeTier) }
+    static func modelIsReady(for tier: ModelTier) -> Bool { modelIsReady(for: tier.model) }
+
+    static var modelIsReady: Bool { modelIsReady(for: activeModel) }
 
     private static let cacheLock = NSLock()
     nonisolated(unsafe) private static var binaryCache: [String: String] = [:]
