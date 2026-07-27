@@ -224,8 +224,9 @@ struct WhisperEngine: Sendable {
         }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw EngineError.emptyOutput }
-        return TranscriptCleanup.collapseWordRuns(
-            TranscriptCleanup.stripNonSpeechMarkers(trimmed))
+        let markersStripped = TranscriptCleanup.stripNonSpeechMarkers(trimmed)
+        let linesCollapsed = TranscriptCleanup.collapseRepeatedLines(markersStripped)
+        return TranscriptCleanup.collapseWordRuns(linesCollapsed)
     }
 
     // MARK: - Process plumbing

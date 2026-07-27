@@ -25,6 +25,51 @@ enum TranscriptCleanup {
         return out.joined(separator: " ")
     }
 
+    /// Collapses a run of identical consecutive lines (the line-level shape of
+    /// Whisper's phrase-loop hallucination, e.g. "Thank you." echoed over
+    /// silence) down to a single line. Runs of `trigger` or fewer are left
+    /// alone, and text with no such run is returned unchanged.
+    static func collapseRepeatedLines(_ text: String, trigger: Int = 2) -> String {
+        let lines = text.components(separatedBy: "\n")
+        guard hasLineRun(lines, longerThan: trigger) else { return text }
+
+        var out: [String] = []
+        var i = 0
+        while i < lines.count {
+            let line = lines[i]
+            if line.isEmpty {
+                out.append(line)
+                i += 1
+                continue
+            }
+            var j = i
+            while j < lines.count, lines[j] == line { j += 1 }
+            let runLength = j - i
+            if runLength > trigger {
+                out.append(line)
+            } else {
+                out.append(contentsOf: lines[i..<j])
+            }
+            i = j
+        }
+        return out.joined(separator: "\n")
+    }
+
+    private static func hasLineRun(_ lines: [String], longerThan limit: Int) -> Bool {
+        var previous: String?
+        var runLength = 0
+        for line in lines {
+            if !line.isEmpty, line == previous {
+                runLength += 1
+            } else {
+                previous = line.isEmpty ? nil : line
+                runLength = line.isEmpty ? 0 : 1
+            }
+            if runLength > limit { return true }
+        }
+        return false
+    }
+
     /// Whisper's standalone non-speech annotations for actual audio *events*.
     /// Deliberately excludes content markers like `[inaudible]`/`[unclear]`,
     /// which carry meaning worth keeping.

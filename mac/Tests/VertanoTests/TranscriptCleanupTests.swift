@@ -35,6 +35,36 @@ final class TranscriptCleanupTests: XCTestCase {
         XCTAssertEqual(TranscriptCleanup.collapseWordRuns(""), "")
     }
 
+    // MARK: - repeated lines
+
+    func testCollapsesManyIdenticalConsecutiveLines() {
+        XCTAssertEqual(
+            TranscriptCleanup.collapseRepeatedLines("Thank you.\nThank you.\nThank you.\nThank you."),
+            "Thank you.")
+    }
+
+    func testCollapsesRepeatedLineRunInMiddle() {
+        XCTAssertEqual(
+            TranscriptCleanup.collapseRepeatedLines("intro\nloop\nloop\nloop\noutro"),
+            "intro\nloop\noutro")
+    }
+
+    func testTwoIdenticalLinesAreKept() {
+        // A one-time repeat is plausibly real; only runaway loops collapse.
+        let text = "yes\nyes"
+        XCTAssertEqual(TranscriptCleanup.collapseRepeatedLines(text), text)
+    }
+
+    func testDistinctLinesUnchanged() {
+        let text = "one\ntwo\nthree"
+        XCTAssertEqual(TranscriptCleanup.collapseRepeatedLines(text), text)
+    }
+
+    func testNoRepeatPreservesExactText() {
+        let text = "single line with  spaces"
+        XCTAssertEqual(TranscriptCleanup.collapseRepeatedLines(text), text)
+    }
+
     // MARK: - non-speech markers
 
     func testRemovesInlineMusicMarker() {
