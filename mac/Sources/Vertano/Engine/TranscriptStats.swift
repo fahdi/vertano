@@ -31,4 +31,11 @@ enum TranscriptStats {
         let minutes = readingTimeMinutes(wordCount: wordCount(text))
         return minutes == 0 ? "" : "~\(minutes) min read"
     }
+
+    /// Combined "N words · ~M min read" (reading time omitted when there are
+    /// no words).
+    static func detail(for text: String) -> String {
+        let reading = readingTimeLabel(for: text)
+        return reading.isEmpty ? label(for: text) : "\(label(for: text)) · \(reading)"
+    }
 }

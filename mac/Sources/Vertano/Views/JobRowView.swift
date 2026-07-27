@@ -65,6 +65,10 @@ struct JobRowView: View {
                                     [job.primaryOutputURL])
                             }
                         }
+                        Spacer()
+                        Text(TranscriptStats.detail(for: job.displayText))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                     .controlSize(.small)
                 }

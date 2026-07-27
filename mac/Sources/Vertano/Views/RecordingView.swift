@@ -105,9 +105,7 @@ struct RecordingView: View {
     }
 
     private var wordCountText: String {
-        var parts = [TranscriptStats.label(for: recorder.liveTranscript)]
-        let reading = TranscriptStats.readingTimeLabel(for: recorder.liveTranscript)
-        if !reading.isEmpty { parts.append(reading) }
+        var parts = [TranscriptStats.detail(for: recorder.liveTranscript)]
         // Live pace, only while actively recording (not after stop).
         if recorder.isRecording,
             let pace = SpeakingRate.label(

@@ -57,4 +57,15 @@ final class TranscriptStatsTests: XCTestCase {
         let text = String(repeating: "word ", count: 500)
         XCTAssertEqual(TranscriptStats.readingTimeLabel(for: text), "~3 min read")
     }
+
+    // MARK: - combined detail
+
+    func testDetailIsWordsOnlyWhenEmpty() {
+        XCTAssertEqual(TranscriptStats.detail(for: ""), "0 words")
+    }
+
+    func testDetailJoinsWordsAndReadingTime() {
+        let text = String(repeating: "word ", count: 500)
+        XCTAssertEqual(TranscriptStats.detail(for: text), "500 words · ~3 min read")
+    }
 }
