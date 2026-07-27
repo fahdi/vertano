@@ -79,6 +79,10 @@ struct ContentView: View {
             } label: {
                 Label("Add Files or Folder…", systemImage: "folder.badge.plus")
             }
+            if queue.hasFailedJobs {
+                Button("Retry Failed") { queue.retryFailed() }
+                    .help("Re-queue every failed job.")
+            }
             if queue.hasFinishedJobs {
                 Button("Clear Finished") { queue.clearFinished() }
             }

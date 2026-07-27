@@ -293,6 +293,16 @@ final class JobQueue: ObservableObject {
         jobs.removeAll { $0.status.isFinished }
     }
 
+    var hasFailedJobs: Bool { RetryPlan.retriableCount(jobs.map(\.status)) > 0 }
+
+    /// Re-queue every failed job and resume processing.
+    func retryFailed() {
+        for index in jobs.indices {
+            jobs[index].status = RetryPlan.reset(jobs[index].status)
+        }
+        pump()
+    }
+
     // MARK: - Processing
 
     private func pump() {
