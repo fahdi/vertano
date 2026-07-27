@@ -52,6 +52,12 @@ struct ContentView: View {
         HStack(spacing: 16) {
             Label("Vertano", systemImage: "waveform")
                 .font(.headline)
+            if let progress = QueueStats.summary(statuses: queue.jobs.map(\.status)) {
+                Text(progress)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .help("Queue progress: completed jobs out of the total.")
+            }
             Spacer()
             Picker("Language", selection: $queue.languageCode) {
                 ForEach(JobQueue.languages, id: \.code) { language in
