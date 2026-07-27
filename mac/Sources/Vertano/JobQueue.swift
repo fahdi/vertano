@@ -369,11 +369,12 @@ final class JobQueue: ObservableObject {
             let originalResult = await Task.detached(priority: .userInitiated) {
                 () -> Result<String, Error> in
                 do {
+                    let subtitleURL = OutputSettings.subtitlesEnabled
+                        ? SubtitleOutput.srtURL(for: job.outputURL(forLanguage: nil)) : nil
                     return .success(
                         try WhisperEngine.transcribe(
                             job.sourceURL, translateToEnglish: false, language: language,
-                            subtitleURL: SubtitleOutput.srtURL(
-                                for: job.outputURL(forLanguage: nil))))
+                            subtitleURL: subtitleURL))
                 } catch {
                     return .failure(error)
                 }

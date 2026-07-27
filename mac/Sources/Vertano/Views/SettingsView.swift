@@ -141,12 +141,16 @@ private struct ModelTierSettingsView: View {
 
 private struct TranslationSettingsView: View {
     @EnvironmentObject var queue: JobQueue
+    @AppStorage(OutputSettings.subtitlesKey) private var subtitlesEnabled = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("The original spoken-language transcript is always saved. Check additional languages to also save a translated copy of each transcript.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+
+            Toggle("Also save subtitle files (.srt and .vtt) next to each transcript", isOn: $subtitlesEnabled)
+                .toggleStyle(.checkbox)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
