@@ -71,7 +71,7 @@ struct JobRowView: View {
             }
             if expanded, !job.displayText.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(job.displayText)
+                    Text(highlighted(job.displayText))
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     HStack {
@@ -112,6 +112,16 @@ struct JobRowView: View {
         case .done, .doneWithWarning: return true
         default: return false
         }
+    }
+
+    /// The transcript with search matches highlighted (plain when not searching).
+    private func highlighted(_ text: String) -> AttributedString {
+        let mutable = NSMutableAttributedString(string: text)
+        for range in SearchHighlight.matchRanges(in: text, query: query) {
+            mutable.addAttribute(.backgroundColor, value: NSColor.systemYellow, range: range)
+            mutable.addAttribute(.foregroundColor, value: NSColor.black, range: range)
+        }
+        return AttributedString(mutable)
     }
 
     @ViewBuilder
