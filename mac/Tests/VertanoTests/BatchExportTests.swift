@@ -28,4 +28,21 @@ final class BatchExportTests: XCTestCase {
         ])
         XCTAssertEqual(out, "b.wav\n\ntwo")
     }
+
+    // MARK: - header
+
+    func testHeaderPrependedWhenPresent() {
+        let out = BatchExport.combined(
+            [(filename: "a.mp3", transcript: "x")], header: "Search results for \"budget\"")
+        XCTAssertEqual(out, "Search results for \"budget\"\n\na.mp3\n\nx")
+    }
+
+    func testNilHeaderLeavesOutputUnchanged() {
+        let out = BatchExport.combined([(filename: "a.mp3", transcript: "x")], header: nil)
+        XCTAssertEqual(out, "a.mp3\n\nx")
+    }
+
+    func testHeaderNotAddedWhenNothingToExport() {
+        XCTAssertEqual(BatchExport.combined([], header: "Search results"), "")
+    }
 }

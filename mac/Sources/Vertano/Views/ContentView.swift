@@ -93,8 +93,10 @@ struct ContentView: View {
                     .help("Re-queue every failed job.")
             }
             if queue.hasFinishedJobs {
-                Button("Copy All") { copyAllTranscripts() }
-                    .help("Copy every finished transcript to the clipboard.")
+                Button(searchText.isEmpty ? "Copy All" : "Copy Matching") { copyTranscripts() }
+                    .help(searchText.isEmpty
+                        ? "Copy every finished transcript to the clipboard."
+                        : "Copy the transcripts matching your search.")
             }
             if queue.hasFinishedJobs {
                 Button("Clear Finished") { queue.clearFinished() }
@@ -221,11 +223,14 @@ struct ContentView: View {
 
     // MARK: - Input
 
-    private func copyAllTranscripts() {
-        let items = queue.jobs
+    private func copyTranscripts() {
+        // Respect an active search: copy only the matching (displayed) jobs.
+        let items = filteredJobs
             .filter { $0.status.isFinished }
             .map { (filename: $0.filename, transcript: $0.displayText) }
-        let text = BatchExport.combined(items)
+        let header = searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? nil : "Search results for \"\(searchText)\""
+        let text = BatchExport.combined(items, header: header)
         guard !text.isEmpty else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
