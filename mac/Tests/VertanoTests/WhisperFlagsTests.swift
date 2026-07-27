@@ -52,6 +52,28 @@ final class WhisperFlagsTests: XCTestCase {
         XCTAssertLessThanOrEqual(WhisperFlags.clampThreads(999), 16)
     }
 
+    // MARK: - streaming / quality flags
+
+    func testDefaultsEnableVADAndNoSpeechAndSuppression() {
+        let args = WhisperFlags().arguments()
+        XCTAssertTrue(args.contains("--vad"))
+        XCTAssertTrue(consecutive(args, "-nth", "0.6"))
+        XCTAssertTrue(args.contains("-sns"))
+    }
+
+    func testInitialPromptEmittedWhenSet() {
+        var flags = WhisperFlags()
+        flags.initialPrompt = "prior words"
+        XCTAssertTrue(consecutive(flags.arguments(), "--prompt", "prior words"))
+    }
+
+    func testInitialPromptOmittedWhenEmptyOrNil() {
+        XCTAssertFalse(WhisperFlags().arguments().contains("--prompt"))
+        var flags = WhisperFlags()
+        flags.initialPrompt = ""
+        XCTAssertFalse(flags.arguments().contains("--prompt"))
+    }
+
     // MARK: - helpers
 
     private func consecutive(_ haystack: [String], _ needle: String...) -> Bool {

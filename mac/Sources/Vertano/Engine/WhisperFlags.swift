@@ -16,6 +16,16 @@ struct WhisperFlags {
     var bestOf = 1
     /// Skip temperature fallback retries; they multiply latency.
     var noFallback = true
+    /// Voice Activity Detection: segment on real speech and drop silence,
+    /// which removes Whisper's silence-hallucination failure at chunk edges.
+    var vad = true
+    /// Below this no-speech probability a segment is treated as silence.
+    var noSpeechThreshold = 0.6
+    /// Suppress non-speech tokens (music/noise markers) in the output.
+    var suppressNonSpeech = true
+    /// Prior confirmed words fed back as context so terminology, casing, and
+    /// punctuation stay coherent across buffer trims. Nil/empty omits it.
+    var initialPrompt: String?
 
     func arguments() -> [String] {
         var args: [String] = []
@@ -25,6 +35,12 @@ struct WhisperFlags {
         args += ["-bs", String(beamSize)]
         args += ["-bo", String(bestOf)]
         if noFallback { args.append("-nf") }
+        if vad { args.append("--vad") }
+        args += ["-nth", String(noSpeechThreshold)]
+        if suppressNonSpeech { args.append("-sns") }
+        if let initialPrompt, !initialPrompt.isEmpty {
+            args += ["--prompt", initialPrompt]
+        }
         return args
     }
 
