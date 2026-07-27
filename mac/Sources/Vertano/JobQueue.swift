@@ -371,7 +371,9 @@ final class JobQueue: ObservableObject {
                 do {
                     return .success(
                         try WhisperEngine.transcribe(
-                            job.sourceURL, translateToEnglish: false, language: language))
+                            job.sourceURL, translateToEnglish: false, language: language,
+                            subtitleURL: SubtitleOutput.srtURL(
+                                for: job.outputURL(forLanguage: nil))))
                 } catch {
                     return .failure(error)
                 }

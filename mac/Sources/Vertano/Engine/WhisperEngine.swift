@@ -151,7 +151,8 @@ struct WhisperEngine: Sendable {
     /// `language` is a Whisper ISO-639-1 code, or "auto" to detect.
     /// Blocking; call off the main thread.
     static func transcribe(
-        _ source: URL, translateToEnglish: Bool, language: String = "auto"
+        _ source: URL, translateToEnglish: Bool, language: String = "auto",
+        subtitleURL: URL? = nil
     ) throws -> String {
         guard let whisper = whisperPath else { throw EngineError.whisperNotFound }
         guard let ffmpeg = ffmpegPath else { throw EngineError.ffmpegNotFound }
@@ -176,7 +177,7 @@ struct WhisperEngine: Sendable {
         let outBase = workDir.appendingPathComponent("transcript")
         let text = try runWhisper(
             whisper, wav: wav, outBase: outBase,
-            language: language, translateToEnglish: translateToEnglish)
+            language: language, translateToEnglish: translateToEnglish, subtitleURL: subtitleURL)
 
         // Devanagari guard: auto-detect occasionally mistakes spoken Urdu for
         // Hindi and transliterates into Devanagari script. Re-run once with
@@ -185,7 +186,7 @@ struct WhisperEngine: Sendable {
             let retryBase = workDir.appendingPathComponent("transcript-ur-retry")
             if let retried = try? runWhisper(
                 whisper, wav: wav, outBase: retryBase,
-                language: "ur", translateToEnglish: translateToEnglish),
+                language: "ur", translateToEnglish: translateToEnglish, subtitleURL: subtitleURL),
                 !retried.isEmpty
             {
                 return retried
@@ -199,7 +200,7 @@ struct WhisperEngine: Sendable {
     /// Throws `.transcriptionFailed` / `.emptyOutput` on failure.
     private static func runWhisper(
         _ whisper: String, wav: URL, outBase: URL,
-        language: String, translateToEnglish: Bool
+        language: String, translateToEnglish: Bool, subtitleURL: URL? = nil
     ) throws -> String {
         var args = [
             "-m", modelPath.path,
@@ -208,6 +209,8 @@ struct WhisperEngine: Sendable {
             "-otxt", "-of", outBase.path,
             "-np",
         ]
+        // Also emit timestamped JSON when a subtitle file is requested.
+        if subtitleURL != nil { args.append("-oj") }
         // Use the whole machine (whisper-cli defaults to 4 threads) with an
         // accuracy-first profile for file transcription.
         args += WhisperFlags.batch.arguments()
@@ -216,6 +219,16 @@ struct WhisperEngine: Sendable {
         let result = try run(whisper, args)
         guard result.exitCode == 0 else {
             throw EngineError.transcriptionFailed(tail(result.stderr))
+        }
+
+        if let subtitleURL {
+            let jsonURL = outBase.appendingPathExtension("json")
+            if let data = try? Data(contentsOf: jsonURL) {
+                let srt = SRTBuilder.build(WhisperJSON.cues(data))
+                if !srt.isEmpty {
+                    try? srt.write(to: subtitleURL, atomically: true, encoding: .utf8)
+                }
+            }
         }
 
         let txtURL = outBase.appendingPathExtension("txt")
