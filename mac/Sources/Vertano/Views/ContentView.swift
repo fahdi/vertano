@@ -167,7 +167,7 @@ struct ContentView: View {
     private var searchField: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-            TextField("Filter by file name", text: $searchText)
+            TextField("Filter by name or transcript text", text: $searchText)
                 .textFieldStyle(.plain)
             if !searchText.isEmpty {
                 Button {
@@ -186,7 +186,10 @@ struct ContentView: View {
     }
 
     private var filteredJobs: [Job] {
-        queue.jobs.filter { JobFilter.matches(filename: $0.filename, query: searchText) }
+        queue.jobs.filter {
+            JobFilter.matches(
+                filename: $0.filename, transcript: $0.displayText, query: searchText)
+        }
     }
 
     private var jobList: some View {

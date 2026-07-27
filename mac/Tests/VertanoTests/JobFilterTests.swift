@@ -25,4 +25,31 @@ final class JobFilterTests: XCTestCase {
         XCTAssertTrue(JobFilter.matches(filename: "audio.wav", query: "wav"))
         XCTAssertFalse(JobFilter.matches(filename: "audio.wav", query: "mp3"))
     }
+
+    // MARK: - content search
+
+    func testEmptyQueryMatchesWithContent() {
+        XCTAssertTrue(JobFilter.matches(filename: "a.mp3", transcript: "anything", query: ""))
+    }
+
+    func testMatchesTranscriptContentNotJustFilename() {
+        XCTAssertTrue(
+            JobFilter.matches(
+                filename: "interview1.mp3", transcript: "we discussed the budget",
+                query: "budget"))
+    }
+
+    func testContentMatchIsCaseInsensitive() {
+        XCTAssertTrue(
+            JobFilter.matches(filename: "a.mp3", transcript: "The Budget", query: "budget"))
+    }
+
+    func testStillMatchesFilename() {
+        XCTAssertTrue(JobFilter.matches(filename: "budget.mp3", transcript: "", query: "budget"))
+    }
+
+    func testNoMatchInEitherFieldIsFalse() {
+        XCTAssertFalse(
+            JobFilter.matches(filename: "a.mp3", transcript: "hello world", query: "budget"))
+    }
 }
