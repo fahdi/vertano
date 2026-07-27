@@ -97,6 +97,8 @@ struct ContentView: View {
                     .help(searchText.isEmpty
                         ? "Copy every finished transcript to the clipboard."
                         : "Copy the transcripts matching your search.")
+                Button("Save…") { saveTranscripts() }
+                    .help("Save the shown transcripts to a text file.")
             }
             if queue.hasFinishedJobs {
                 Button("Clear Finished") { queue.clearFinished() }
@@ -223,17 +225,33 @@ struct ContentView: View {
 
     // MARK: - Input
 
-    private func copyTranscripts() {
-        // Respect an active search: copy only the matching (displayed) jobs.
+    /// Combined text of the shown, finished transcripts (respecting an active
+    /// search), headed by the query when filtering.
+    private func exportText() -> String {
         let items = filteredJobs
             .filter { $0.status.isFinished }
             .map { (filename: $0.filename, transcript: $0.displayText) }
         let header = searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? nil : "Search results for \"\(searchText)\""
-        let text = BatchExport.combined(items, header: header)
+        return BatchExport.combined(items, header: header)
+    }
+
+    private func copyTranscripts() {
+        let text = exportText()
         guard !text.isEmpty else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    private func saveTranscripts() {
+        let text = exportText()
+        guard !text.isEmpty else { return }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = SaveExport.filename(query: searchText)
+        panel.allowedContentTypes = [.plainText]
+        if panel.runModal() == .OK, let url = panel.url {
+            try? text.write(to: url, atomically: true, encoding: .utf8)
+        }
     }
 
     private func chooseFolder() {
