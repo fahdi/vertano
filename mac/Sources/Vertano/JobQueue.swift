@@ -84,8 +84,17 @@ final class JobQueue: ObservableObject {
     static let captionExtensions: Set<String> = ["srt", "vtt"]
 
     var hasFinishedJobs: Bool { jobs.contains { $0.status.isFinished } }
-    var hasActiveWork: Bool {
-        jobs.contains { $0.status == .queued || $0.status.isActive }
+    var hasActiveWork: Bool { QueueControl.hasPendingWork(jobs.map(\.status)) }
+
+    /// When true the pump won't start the next job (the current one, if any,
+    /// still finishes). Lets a long batch be paused to reclaim CPU/battery.
+    @Published var isPaused = false
+
+    func pauseProcessing() { isPaused = true }
+
+    func resumeProcessing() {
+        isPaused = false
+        pump()
     }
 
     // MARK: - Ingest
@@ -314,7 +323,7 @@ final class JobQueue: ObservableObject {
     // MARK: - Processing
 
     private func pump() {
-        guard startsProcessingAutomatically, !isProcessing else { return }
+        guard startsProcessingAutomatically, !isPaused, !isProcessing else { return }
         guard let index = jobs.firstIndex(where: { $0.status == .queued }) else { return }
         isProcessing = true
         switch jobs[index] {

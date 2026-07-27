@@ -81,6 +81,13 @@ struct ContentView: View {
             } label: {
                 Label("Add Files or Folder…", systemImage: "folder.badge.plus")
             }
+            if queue.isPaused {
+                Button("Resume") { queue.resumeProcessing() }
+                    .help("Resume processing the queue.")
+            } else if queue.hasActiveWork {
+                Button("Pause") { queue.pauseProcessing() }
+                    .help("Finish the current file, then stop before the next.")
+            }
             if queue.hasFailedJobs {
                 Button("Retry Failed") { queue.retryFailed() }
                     .help("Re-queue every failed job.")
