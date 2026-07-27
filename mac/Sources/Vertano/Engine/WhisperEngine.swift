@@ -247,7 +247,8 @@ struct WhisperEngine: Sendable {
         guard !trimmed.isEmpty else { throw EngineError.emptyOutput }
         let markersStripped = TranscriptCleanup.stripNonSpeechMarkers(trimmed)
         let linesCollapsed = TranscriptCleanup.collapseRepeatedLines(markersStripped)
-        return TranscriptCleanup.collapseWordRuns(linesCollapsed)
+        let cleaned = TranscriptCleanup.collapseWordRuns(linesCollapsed)
+        return OutputSettings.flowParagraphs ? TranscriptReflow.flow(cleaned) : cleaned
     }
 
     // MARK: - Process plumbing

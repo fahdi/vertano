@@ -11,4 +11,14 @@ enum OutputSettings {
     static var subtitlesEnabled: Bool {
         resolveSubtitlesEnabled(stored: UserDefaults.standard.object(forKey: subtitlesKey) as? Bool)
     }
+
+    static let flowParagraphsKey = "flowParagraphs"
+
+    /// Off by default so existing line-per-segment output is unchanged.
+    static func resolveFlowParagraphs(stored: Bool?) -> Bool { stored ?? false }
+
+    static var flowParagraphs: Bool {
+        resolveFlowParagraphs(
+            stored: UserDefaults.standard.object(forKey: flowParagraphsKey) as? Bool)
+    }
 }

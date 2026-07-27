@@ -142,6 +142,7 @@ private struct ModelTierSettingsView: View {
 private struct TranslationSettingsView: View {
     @EnvironmentObject var queue: JobQueue
     @AppStorage(OutputSettings.subtitlesKey) private var subtitlesEnabled = true
+    @AppStorage(OutputSettings.flowParagraphsKey) private var flowParagraphs = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -150,6 +151,8 @@ private struct TranslationSettingsView: View {
                 .foregroundStyle(.secondary)
 
             Toggle("Also save subtitle files (.srt and .vtt) next to each transcript", isOn: $subtitlesEnabled)
+                .toggleStyle(.checkbox)
+            Toggle("Save transcripts as flowing paragraphs instead of one line per segment", isOn: $flowParagraphs)
                 .toggleStyle(.checkbox)
 
             ScrollView {
