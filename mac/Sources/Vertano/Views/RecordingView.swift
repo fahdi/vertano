@@ -105,9 +105,18 @@ struct RecordingView: View {
     }
 
     private var wordCountText: String {
-        let words = TranscriptStats.label(for: recorder.liveTranscript)
+        var parts = [TranscriptStats.label(for: recorder.liveTranscript)]
         let reading = TranscriptStats.readingTimeLabel(for: recorder.liveTranscript)
-        return reading.isEmpty ? words : "\(words) · \(reading)"
+        if !reading.isEmpty { parts.append(reading) }
+        // Live pace, only while actively recording (not after stop).
+        if recorder.isRecording,
+            let pace = SpeakingRate.label(
+                words: TranscriptStats.wordCount(recorder.liveTranscript),
+                seconds: recorder.elapsed)
+        {
+            parts.append(pace)
+        }
+        return parts.joined(separator: " · ")
     }
 
     @ViewBuilder
