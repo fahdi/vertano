@@ -72,20 +72,30 @@ struct RecordingView: View {
 
     private var statusLabel: String {
         if recorder.isFinishing { return "Finishing — transcribing the last chunk…" }
-        if recorder.isRecording { return "Recording — transcript updates about every 15 seconds" }
+        if recorder.isRecording { return "Recording — transcript updates live as you speak" }
         return "Saves WAV + transcript to ~/Documents/Vertano"
     }
 
     private var transcriptArea: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                Text(recorder.liveTranscript.isEmpty
-                    ? "Live transcript appears here." : recorder.liveTranscript)
-                    .textSelection(.enabled)
-                    .foregroundStyle(recorder.liveTranscript.isEmpty ? .secondary : .primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(10)
-                    .id("transcript")
+                Group {
+                    if recorder.liveTranscript.isEmpty && recorder.tentativeTranscript.isEmpty {
+                        Text("Live transcript appears here.")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        // Confirmed text solid; the not-yet-stable tail greyed.
+                        (Text(recorder.liveTranscript)
+                            .foregroundColor(.primary)
+                            + Text(recorder.tentativeTranscript.isEmpty
+                                ? "" : " " + recorder.tentativeTranscript)
+                            .foregroundColor(.secondary))
+                    }
+                }
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(10)
+                .id("transcript")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))

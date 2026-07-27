@@ -34,6 +34,8 @@ final class RecordingController: ObservableObject {
     }
     @Published var elapsed: TimeInterval = 0
     @Published var liveTranscript = ""
+    /// The not-yet-confirmed tail of the streaming transcript (shown greyed).
+    @Published var tentativeTranscript = ""
     @Published var errorMessage: String?
     @Published var permissionDenied = false
     @Published var lastSavedURL: URL?
@@ -71,6 +73,11 @@ final class RecordingController: ObservableObject {
     /// The model that drove the live scroll this session; when it is the fast
     /// instant model, the saved file is re-transcribed at the accurate tier.
     private var liveModelUsed: LiveModelChoice = .accurate(ModelTier.efficient.model)
+    // Streaming state (resident-server path only).
+    private var agreement = LocalAgreement()
+    private var finalizedText = ""
+    private var isDecoding = false
+    private var lastDecodeAt = Date()
 
     // MARK: - Start
 
@@ -80,6 +87,10 @@ final class RecordingController: ObservableObject {
         permissionDenied = false
         lastSavedURL = nil
         liveTranscript = ""
+        tentativeTranscript = ""
+        agreement = LocalAgreement()
+        finalizedText = ""
+        isDecoding = false
         elapsed = 0
         pendingChunkCount = 0
         transcriptionStatus = nil
@@ -124,7 +135,11 @@ final class RecordingController: ObservableObject {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard let self, self.isRecording else { return }
                 self.elapsed = Date().timeIntervalSince(self.startedAt)
-                if let sink = self.sink, sink.pendingSampleCount >= self.activeChunkSampleCount {
+                if let server = self.liveServer, server.isRunning {
+                    await self.streamingDecodeIfDue(server)
+                } else if let sink = self.sink,
+                    sink.pendingSampleCount >= self.activeChunkSampleCount
+                {
                     self.enqueueChunk(sink.drainPendingSamples())
                 }
                 if let captureError = self.sink?.takeCaptureError() {
@@ -156,8 +171,13 @@ final class RecordingController: ObservableObject {
 
         let server = WhisperServer()
         let modelPath = WhisperEngine.liveModelPath(for: plan.liveModel).path
+        // whisper's built-in --vad needs a Silero model we don't ship yet, so
+        // leave it off at launch; the streaming buffer + LocalAgreement carry
+        // the quality win, and -nth/-sns still curb hallucinations.
+        var flags = WhisperFlags()
+        flags.vad = false
         do {
-            try await server.start(modelPath: modelPath, extraFlags: WhisperFlags().arguments())
+            try await server.start(modelPath: modelPath, extraFlags: flags.arguments())
             liveServer = server
         } catch {
             server.stop()
@@ -172,6 +192,56 @@ final class RecordingController: ObservableObject {
         case .instant: WhisperEngine.instantModelIsReady
         case .accurate(let model): WhisperEngine.modelIsReady(for: model)
         }
+    }
+
+    // MARK: - Streaming decode (resident-server path)
+
+    /// Re-decode the growing audio window about once a second and fold the
+    /// result through LocalAgreement, so confirmed text never splits a word
+    /// and the tentative tail updates live.
+    private func streamingDecodeIfDue(_ server: WhisperServer) async {
+        guard !isDecoding, let sink else { return }
+        guard Date().timeIntervalSince(lastDecodeAt) >= 1.0 else { return }
+        let samples = sink.windowSamples()
+        guard samples.count >= Int(Self.sampleRate) else { return }  // need >= 1s
+
+        isDecoding = true
+        lastDecodeAt = Date()
+        let translate = JobQueue.shared.translatesToEnglish
+        let language = JobQueue.shared.languageCode
+        let wav = WAVEncoder.encode(samples, sampleRate: Int(Self.sampleRate))
+        do {
+            let text = try await server.transcribe(
+                wav: wav, language: language, translateToEnglish: translate)
+            _ = agreement.insert(WordTokenizer.words(text))
+            updateStreamingTranscript()
+            trimWindowIfNeeded(sink)
+        } catch {
+            // Transient decode failure: keep the buffer and try next tick.
+        }
+        isDecoding = false
+    }
+
+    private func updateStreamingTranscript() {
+        liveTranscript = (finalizedText + " " + agreement.confirmedText)
+            .trimmingCharacters(in: .whitespaces)
+        tentativeTranscript = agreement.tentative.joined(separator: " ")
+    }
+
+    /// Keep the decode window bounded (and inside Whisper's 30 s field): once
+    /// it is long, fold confirmed text into `finalizedText` and reset the
+    /// window. Prefer a moment with no tentative tail (a pause) so nothing
+    /// unconfirmed is dropped; force it before 30 s regardless.
+    private func trimWindowIfNeeded(_ sink: CaptureSink) {
+        let seconds = Double(sink.windowSamples().count) / Self.sampleRate
+        let atPause = agreement.tentative.isEmpty
+        guard seconds > 28 || (seconds > 18 && atPause) else { return }
+        if !agreement.confirmedText.isEmpty {
+            finalizedText = (finalizedText + " " + agreement.confirmedText)
+                .trimmingCharacters(in: .whitespaces)
+        }
+        agreement = LocalAgreement()
+        sink.resetWindow()
     }
 
     // MARK: - Stop
@@ -190,17 +260,28 @@ final class RecordingController: ObservableObject {
         isRecording = false
         elapsed = Date().timeIntervalSince(startedAt)
 
+        let streaming = liveServer?.isRunning == true
         if let sink {
             if let captureError = sink.takeCaptureError() {
                 errorMessage = captureError
             }
-            var remainder = sink.drainPendingSamples()
-            if remainder.count >= Self.negligibleSamples {
-                if remainder.count < Self.minimumWhisperSamples {
-                    remainder.append(contentsOf: [Int16](
-                        repeating: 0, count: Self.minimumWhisperSamples - remainder.count))
+            if streaming {
+                // Finalize the streaming transcript best-effort (the accurate
+                // re-transcription below replaces it when an instant model
+                // drove the live scroll).
+                let tail = agreement.tentative.joined(separator: " ")
+                liveTranscript = (finalizedText + " " + agreement.confirmedText + " " + tail)
+                    .trimmingCharacters(in: .whitespaces)
+                tentativeTranscript = ""
+            } else {
+                var remainder = sink.drainPendingSamples()
+                if remainder.count >= Self.negligibleSamples {
+                    if remainder.count < Self.minimumWhisperSamples {
+                        remainder.append(contentsOf: [Int16](
+                            repeating: 0, count: Self.minimumWhisperSamples - remainder.count))
+                    }
+                    enqueueChunk(remainder)
                 }
-                enqueueChunk(remainder)
             }
             // Releases the AVAudioFile so the WAV header is finalized before
             // the move below.
@@ -508,6 +589,22 @@ private final class CaptureSink: @unchecked Sendable {
         let drained = pending
         pending.removeAll(keepingCapacity: true)
         return drained
+    }
+
+    /// Streaming path: the accumulated window without clearing it, so the
+    /// growing buffer can be re-decoded repeatedly (LocalAgreement).
+    func windowSamples() -> [Int16] {
+        lock.lock()
+        defer { lock.unlock() }
+        return pending
+    }
+
+    /// Drop the streaming window (the session WAV is written separately and is
+    /// unaffected).
+    func resetWindow() {
+        lock.lock()
+        defer { lock.unlock() }
+        pending.removeAll(keepingCapacity: true)
     }
 
     /// First capture error wins; returning it clears it so the controller
