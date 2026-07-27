@@ -86,6 +86,10 @@ struct ContentView: View {
                     .help("Re-queue every failed job.")
             }
             if queue.hasFinishedJobs {
+                Button("Copy All") { copyAllTranscripts() }
+                    .help("Copy every finished transcript to the clipboard.")
+            }
+            if queue.hasFinishedJobs {
                 Button("Clear Finished") { queue.clearFinished() }
             }
         }
@@ -199,6 +203,16 @@ struct ContentView: View {
     }
 
     // MARK: - Input
+
+    private func copyAllTranscripts() {
+        let items = queue.jobs
+            .filter { $0.status.isFinished }
+            .map { (filename: $0.filename, transcript: $0.displayText) }
+        let text = BatchExport.combined(items)
+        guard !text.isEmpty else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
 
     private func chooseFolder() {
         let panel = NSOpenPanel()
