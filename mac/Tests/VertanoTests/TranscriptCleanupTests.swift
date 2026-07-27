@@ -34,4 +34,36 @@ final class TranscriptCleanupTests: XCTestCase {
     func testEmptyStaysEmpty() {
         XCTAssertEqual(TranscriptCleanup.collapseWordRuns(""), "")
     }
+
+    // MARK: - non-speech markers
+
+    func testRemovesInlineMusicMarker() {
+        XCTAssertEqual(
+            TranscriptCleanup.stripNonSpeechMarkers("Hello [Music] world"), "Hello world")
+    }
+
+    func testRemovesLeadingParentheticalApplause() {
+        XCTAssertEqual(
+            TranscriptCleanup.stripNonSpeechMarkers("(applause) Thank you"), "Thank you")
+    }
+
+    func testRemovesBlankAudioMarkerEntirely() {
+        XCTAssertEqual(TranscriptCleanup.stripNonSpeechMarkers("[BLANK_AUDIO]"), "")
+    }
+
+    func testKeepsInaudibleAndOtherContentMarkers() {
+        // Not a non-speech *event* — preserve the signal.
+        let text = "He said [inaudible] something"
+        XCTAssertEqual(TranscriptCleanup.stripNonSpeechMarkers(text), text)
+    }
+
+    func testUnbracketedKeywordUntouched() {
+        let text = "Music was playing in the background"
+        XCTAssertEqual(TranscriptCleanup.stripNonSpeechMarkers(text), text)
+    }
+
+    func testNoMarkersPreservesExactText() {
+        let text = "line one\n\nline  two"
+        XCTAssertEqual(TranscriptCleanup.stripNonSpeechMarkers(text), text)
+    }
 }
