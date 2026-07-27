@@ -224,7 +224,8 @@ struct WhisperEngine: Sendable {
         if let subtitleURL {
             let jsonURL = outBase.appendingPathExtension("json")
             if let data = try? Data(contentsOf: jsonURL) {
-                let cues = WhisperJSON.cues(data)
+                // ~2 lines of ~42 chars — keep captions to a readable length.
+                let cues = SubtitleSplit.wrap(WhisperJSON.cues(data), maxChars: 84)
                 let srt = SRTBuilder.build(cues)
                 if !srt.isEmpty {
                     try? srt.write(to: subtitleURL, atomically: true, encoding: .utf8)
