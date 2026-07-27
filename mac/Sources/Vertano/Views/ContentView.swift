@@ -53,10 +53,12 @@ struct ContentView: View {
             Label("Vertano", systemImage: "waveform")
                 .font(.headline)
             if let progress = QueueStats.summary(statuses: queue.jobs.map(\.status)) {
-                Text(progress)
+                let words = QueueStats.totalWordsLabel(
+                    transcripts: queue.jobs.filter { $0.status.isFinished }.map(\.displayText))
+                Text(words.map { "\(progress) · \($0)" } ?? progress)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
-                    .help("Queue progress: completed jobs out of the total.")
+                    .help("Queue progress and total words transcribed so far.")
             }
             Spacer()
             Picker("Language", selection: $queue.languageCode) {

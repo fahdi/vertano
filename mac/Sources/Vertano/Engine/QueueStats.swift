@@ -19,4 +19,15 @@ enum QueueStats {
         if failed > 0 { summary += ", \(failed) failed" }
         return summary
     }
+
+    /// Combined word count across the given transcripts — a corpus-size metric
+    /// for the batch (useful to researchers and writers).
+    static func totalWords(transcripts: [String]) -> Int {
+        transcripts.reduce(0) { $0 + TranscriptStats.wordCount($1) }
+    }
+
+    static func totalWordsLabel(transcripts: [String]) -> String? {
+        let total = totalWords(transcripts: transcripts)
+        return total == 0 ? nil : "\(TranscriptStats.grouped(total)) words"
+    }
 }

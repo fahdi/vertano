@@ -8,14 +8,18 @@ enum TranscriptStats {
         text.split(whereSeparator: \.isWhitespace).count
     }
 
-    static func label(for text: String) -> String {
-        let count = wordCount(text)
+    /// A count with thousands grouping (locale-independent comma), e.g. 1,234.
+    static func grouped(_ count: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = true
         formatter.groupingSeparator = ","
-        let number = formatter.string(from: NSNumber(value: count)) ?? "\(count)"
-        return "\(number) \(count == 1 ? "word" : "words")"
+        return formatter.string(from: NSNumber(value: count)) ?? "\(count)"
+    }
+
+    static func label(for text: String) -> String {
+        let count = wordCount(text)
+        return "\(grouped(count)) \(count == 1 ? "word" : "words")"
     }
 
     /// Estimated reading time at ~200 words per minute, rounded up. Zero words

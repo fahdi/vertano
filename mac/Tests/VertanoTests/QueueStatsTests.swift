@@ -32,4 +32,24 @@ final class QueueStatsTests: XCTestCase {
         XCTAssertEqual(
             QueueStats.summary(statuses: [.done, .failed("boom")]), "1 of 2 done, 1 failed")
     }
+
+    // MARK: - total words
+
+    func testTotalWordsSumsTranscripts() {
+        XCTAssertEqual(QueueStats.totalWords(transcripts: ["hello world", "one two three"]), 5)
+    }
+
+    func testTotalWordsIgnoresEmpty() {
+        XCTAssertEqual(QueueStats.totalWords(transcripts: ["", "   ", "hi"]), 1)
+    }
+
+    func testTotalWordsLabelNilWhenNoWords() {
+        XCTAssertNil(QueueStats.totalWordsLabel(transcripts: []))
+        XCTAssertNil(QueueStats.totalWordsLabel(transcripts: ["", " "]))
+    }
+
+    func testTotalWordsLabelGroupsThousands() {
+        let big = [String(repeating: "word ", count: 2500)]
+        XCTAssertEqual(QueueStats.totalWordsLabel(transcripts: big), "2,500 words")
+    }
 }
