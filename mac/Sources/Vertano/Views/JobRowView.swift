@@ -15,10 +15,19 @@ struct JobRowView: View {
             HStack(spacing: 10) {
                 statusIcon
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(job.filename)
-                        .fontWeight(.medium)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                    HStack(spacing: 6) {
+                        Text(job.filename)
+                            .fontWeight(.medium)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        if let matches = SearchSnippet.matchCountLabel(
+                            text: job.displayText, query: query)
+                        {
+                            Text(matches)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     statusDetail
                     if let snippet = SearchSnippet.excerpt(text: job.displayText, query: query) {
                         Text(snippet)

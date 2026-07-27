@@ -38,4 +38,27 @@ final class SearchSnippetTests: XCTestCase {
         let out = SearchSnippet.excerpt(text: "one\nGHIJKL\ntwo", query: "GHIJKL", radius: 2)
         XCTAssertFalse(out!.contains("\n"))
     }
+
+    // MARK: - match count
+
+    func testMatchCountZeroForEmptyOrMissing() {
+        XCTAssertEqual(SearchSnippet.matchCount(text: "hello", query: "  "), 0)
+        XCTAssertEqual(SearchSnippet.matchCount(text: "hello", query: "budget"), 0)
+    }
+
+    func testMatchCountCountsOccurrences() {
+        XCTAssertEqual(
+            SearchSnippet.matchCount(text: "the cat sat on the mat", query: "the"), 2)
+    }
+
+    func testMatchCountIsCaseInsensitive() {
+        XCTAssertEqual(SearchSnippet.matchCount(text: "The THE the", query: "the"), 3)
+    }
+
+    func testMatchCountLabelSingularAndPlural() {
+        XCTAssertNil(SearchSnippet.matchCountLabel(text: "hello", query: "x"))
+        XCTAssertEqual(SearchSnippet.matchCountLabel(text: "one two", query: "one"), "1 match")
+        XCTAssertEqual(
+            SearchSnippet.matchCountLabel(text: "aa aa aa", query: "aa"), "3 matches")
+    }
 }

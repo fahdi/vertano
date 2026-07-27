@@ -22,4 +22,25 @@ enum SearchSnippet {
         if upper < text.endIndex { snippet += "…" }
         return snippet
     }
+
+    /// Number of (non-overlapping, case-insensitive) occurrences of the query.
+    static func matchCount(text: String, query: String) -> Int {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return 0 }
+        var count = 0
+        var start = text.startIndex
+        while let range = text.range(
+            of: trimmed, options: .caseInsensitive, range: start..<text.endIndex)
+        {
+            count += 1
+            start = range.upperBound
+        }
+        return count
+    }
+
+    static func matchCountLabel(text: String, query: String) -> String? {
+        let count = matchCount(text: text, query: query)
+        guard count > 0 else { return nil }
+        return "\(count) \(count == 1 ? "match" : "matches")"
+    }
 }
