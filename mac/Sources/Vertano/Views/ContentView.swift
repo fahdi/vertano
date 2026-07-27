@@ -204,7 +204,7 @@ struct ContentView: View {
                         .padding(.vertical, 24)
                 } else {
                     ForEach(jobs) { job in
-                        JobRowView(job: job)
+                        JobRowView(job: job, query: searchText)
                     }
                 }
             }

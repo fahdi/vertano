@@ -3,6 +3,7 @@ import SwiftUI
 
 struct JobRowView: View {
     let job: Job
+    var query: String = ""
     @EnvironmentObject var queue: JobQueue
     @State private var expanded = false
     @State private var copied = false
@@ -19,6 +20,12 @@ struct JobRowView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     statusDetail
+                    if let snippet = SearchSnippet.excerpt(text: job.displayText, query: query) {
+                        Text(snippet)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                     if case .captions(let caption) = job,
                         let code = caption.sourceLanguageCode
                     {
