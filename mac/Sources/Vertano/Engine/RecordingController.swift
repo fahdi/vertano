@@ -254,7 +254,12 @@ final class RecordingController: ObservableObject {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-            let base = "Recording \(formatter.string(from: Date()))"
+            let fallback = "Recording \(formatter.string(from: Date()))"
+            // Name the file from the transcript's opening words so a library of
+            // recordings is browsable by content, not by timestamp.
+            let base = uniqueBaseName(
+                TranscriptNaming.baseName(transcript: liveTranscript, fallback: fallback),
+                in: folder)
             let wavDest = folder.appendingPathComponent(base + ".wav")
             let txtDest = folder.appendingPathComponent(base + ".txt")
             try FileManager.default.moveItem(at: sessionWavURL, to: wavDest)
@@ -264,6 +269,20 @@ final class RecordingController: ObservableObject {
             errorMessage = "Couldn't save recording: \(error.localizedDescription)"
             try? FileManager.default.removeItem(at: sessionWavURL)
         }
+    }
+
+    /// Content-based names can collide (two recordings that open with the same
+    /// words); append " 2", " 3", … until the `.wav` slot is free.
+    private func uniqueBaseName(_ base: String, in folder: URL) -> String {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: folder.appendingPathComponent(base + ".wav").path) else {
+            return base
+        }
+        var n = 2
+        while fm.fileExists(atPath: folder.appendingPathComponent("\(base) \(n).wav").path) {
+            n += 1
+        }
+        return "\(base) \(n)"
     }
 
     // MARK: - Chunk transcription
