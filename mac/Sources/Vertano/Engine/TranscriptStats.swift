@@ -17,4 +17,18 @@ enum TranscriptStats {
         let number = formatter.string(from: NSNumber(value: count)) ?? "\(count)"
         return "\(number) \(count == 1 ? "word" : "words")"
     }
+
+    /// Estimated reading time at ~200 words per minute, rounded up. Zero words
+    /// means no estimate.
+    static let wordsPerMinute = 200
+
+    static func readingTimeMinutes(wordCount: Int) -> Int {
+        guard wordCount > 0 else { return 0 }
+        return Int((Double(wordCount) / Double(wordsPerMinute)).rounded(.up))
+    }
+
+    static func readingTimeLabel(for text: String) -> String {
+        let minutes = readingTimeMinutes(wordCount: wordCount(text))
+        return minutes == 0 ? "" : "~\(minutes) min read"
+    }
 }

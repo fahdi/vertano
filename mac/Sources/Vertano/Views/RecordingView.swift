@@ -105,10 +105,16 @@ struct RecordingView: View {
         }
     }
 
+    private var wordCountText: String {
+        let words = TranscriptStats.label(for: recorder.liveTranscript)
+        let reading = TranscriptStats.readingTimeLabel(for: recorder.liveTranscript)
+        return reading.isEmpty ? words : "\(words) · \(reading)"
+    }
+
     @ViewBuilder
     private var wordCountLine: some View {
         if !recorder.liveTranscript.isEmpty {
-            Text(TranscriptStats.label(for: recorder.liveTranscript))
+            Text(wordCountText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)

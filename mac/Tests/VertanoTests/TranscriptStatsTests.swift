@@ -33,4 +33,28 @@ final class TranscriptStatsTests: XCTestCase {
         let text = String(repeating: "word ", count: 1234)
         XCTAssertEqual(TranscriptStats.label(for: text), "1,234 words")
     }
+
+    // MARK: - reading time
+
+    func testNoWordsHasZeroReadingTime() {
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 0), 0)
+        XCTAssertEqual(TranscriptStats.readingTimeLabel(for: ""), "")
+    }
+
+    func testShortTextRoundsUpToOneMinute() {
+        // ~200 wpm; anything from 1..200 words is "~1 min read".
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 1), 1)
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 200), 1)
+    }
+
+    func testReadingTimeRoundsUpPerTwoHundredWords() {
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 201), 2)
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 400), 2)
+        XCTAssertEqual(TranscriptStats.readingTimeMinutes(wordCount: 401), 3)
+    }
+
+    func testReadingTimeLabelFormat() {
+        let text = String(repeating: "word ", count: 500)
+        XCTAssertEqual(TranscriptStats.readingTimeLabel(for: text), "~3 min read")
+    }
 }
