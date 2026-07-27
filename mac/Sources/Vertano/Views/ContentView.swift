@@ -169,6 +169,13 @@ struct ContentView: View {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
             TextField("Filter by name or transcript text", text: $searchText)
                 .textFieldStyle(.plain)
+            if let summary = SearchSummary.summary(
+                texts: queue.jobs.map(\.displayText), query: searchText)
+            {
+                Text(summary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             if !searchText.isEmpty {
                 Button {
                     searchText = ""
