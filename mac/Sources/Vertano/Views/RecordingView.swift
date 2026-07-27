@@ -12,6 +12,7 @@ struct RecordingView: View {
             header
             recordControls
             transcriptArea
+            wordCountLine
             transcriptionStatusLine
             statusMessages
             footer
@@ -91,6 +92,16 @@ struct RecordingView: View {
             .onChange(of: recorder.liveTranscript) { _, _ in
                 withAnimation { proxy.scrollTo("transcript", anchor: .bottom) }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var wordCountLine: some View {
+        if !recorder.liveTranscript.isEmpty {
+            Text(TranscriptStats.label(for: recorder.liveTranscript))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
