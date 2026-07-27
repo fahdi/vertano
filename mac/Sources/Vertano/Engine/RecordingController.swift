@@ -326,9 +326,7 @@ final class RecordingController: ObservableObject {
         guard let sessionWavURL else { return }
         self.sessionWavURL = nil
 
-        let folder = destinationFolder
-            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("Vertano", isDirectory: true)
+        let folder = destinationFolder ?? RecordingStore.defaultFolder
         do {
             try FileManager.default.createDirectory(
                 at: folder, withIntermediateDirectories: true)

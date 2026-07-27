@@ -194,6 +194,12 @@ struct RecordingView: View {
                 }
             }
             .disabled(recorder.liveTranscript.isEmpty)
+            Button("Open Recordings Folder") {
+                let folder = RecordingStore.defaultFolder
+                try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                NSWorkspace.shared.open(folder)
+            }
+            .help("Open ~/Documents/Vertano, where recordings and transcripts are saved.")
             Spacer()
             Button("Close") { dismiss() }
                 .disabled(recorder.isRecording || recorder.isFinishing)
