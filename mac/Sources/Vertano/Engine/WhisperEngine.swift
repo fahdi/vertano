@@ -224,9 +224,16 @@ struct WhisperEngine: Sendable {
         if let subtitleURL {
             let jsonURL = outBase.appendingPathExtension("json")
             if let data = try? Data(contentsOf: jsonURL) {
-                let srt = SRTBuilder.build(WhisperJSON.cues(data))
+                let cues = WhisperJSON.cues(data)
+                let srt = SRTBuilder.build(cues)
                 if !srt.isEmpty {
                     try? srt.write(to: subtitleURL, atomically: true, encoding: .utf8)
+                }
+                let vtt = VTTBuilder.build(cues)
+                if !vtt.isEmpty {
+                    try? vtt.write(
+                        to: SubtitleOutput.vttURL(for: subtitleURL),
+                        atomically: true, encoding: .utf8)
                 }
             }
         }

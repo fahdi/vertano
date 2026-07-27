@@ -59,9 +59,37 @@ enum SRTBuilder {
     }
 }
 
-/// The `.srt` sibling of a transcript output path.
+/// WebVTT timecode: `HH:MM:SS.mmm` (dot, not comma).
+enum VTTTimecode {
+    static func format(milliseconds: Int) -> String {
+        let ms = max(0, milliseconds)
+        return String(
+            format: "%02d:%02d:%02d.%03d",
+            ms / 3_600_000, (ms % 3_600_000) / 60_000, (ms % 60_000) / 1000, ms % 1000)
+    }
+}
+
+/// Builds a WebVTT document (the web/HTML5/YouTube caption format).
+enum VTTBuilder {
+    static func build(_ cues: [SubtitleCue]) -> String {
+        let blocks = cues.compactMap { cue -> String? in
+            let text = cue.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { return nil }
+            return "\(VTTTimecode.format(milliseconds: cue.startMs))"
+                + " --> \(VTTTimecode.format(milliseconds: cue.endMs))\n\(text)"
+        }
+        guard !blocks.isEmpty else { return "" }
+        return "WEBVTT\n\n" + blocks.joined(separator: "\n\n")
+    }
+}
+
+/// The subtitle siblings of a transcript output path.
 enum SubtitleOutput {
     static func srtURL(for transcriptURL: URL) -> URL {
         transcriptURL.deletingPathExtension().appendingPathExtension("srt")
+    }
+
+    static func vttURL(for url: URL) -> URL {
+        url.deletingPathExtension().appendingPathExtension("vtt")
     }
 }

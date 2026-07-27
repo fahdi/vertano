@@ -61,10 +61,45 @@ final class SubtitleTests: XCTestCase {
         XCTAssertEqual(srt, "1\n00:00:02,000 --> 00:00:03,000\nb")
     }
 
-    // MARK: - output path
+    // MARK: - WebVTT
+
+    func testVTTTimecodeUsesDot() {
+        XCTAssertEqual(VTTTimecode.format(milliseconds: 0), "00:00:00.000")
+        XCTAssertEqual(VTTTimecode.format(milliseconds: 2640), "00:00:02.640")
+    }
+
+    func testEmptyCuesProduceEmptyVTT() {
+        XCTAssertEqual(VTTBuilder.build([]), "")
+    }
+
+    func testVTTHasHeaderAndCues() {
+        let vtt = VTTBuilder.build([
+            SubtitleCue(startMs: 0, endMs: 2640, text: "Hello"),
+            SubtitleCue(startMs: 3000, endMs: 4000, text: "world"),
+        ])
+        XCTAssertEqual(
+            vtt,
+            "WEBVTT\n\n00:00:00.000 --> 00:00:02.640\nHello\n\n"
+                + "00:00:03.000 --> 00:00:04.000\nworld")
+    }
+
+    func testVTTSkipsEmptyText() {
+        let vtt = VTTBuilder.build([
+            SubtitleCue(startMs: 0, endMs: 1000, text: "  "),
+            SubtitleCue(startMs: 2000, endMs: 3000, text: "b"),
+        ])
+        XCTAssertEqual(vtt, "WEBVTT\n\n00:00:02.000 --> 00:00:03.000\nb")
+    }
+
+    // MARK: - output paths
 
     func testSRTPathSwapsExtension() {
         let txt = URL(fileURLWithPath: "/Users/x/Docs/interview.txt")
         XCTAssertEqual(SubtitleOutput.srtURL(for: txt).path, "/Users/x/Docs/interview.srt")
+    }
+
+    func testVTTPathSwapsExtension() {
+        let srt = URL(fileURLWithPath: "/Users/x/Docs/interview.srt")
+        XCTAssertEqual(SubtitleOutput.vttURL(for: srt).path, "/Users/x/Docs/interview.vtt")
     }
 }
