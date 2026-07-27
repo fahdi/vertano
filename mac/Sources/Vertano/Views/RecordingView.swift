@@ -66,8 +66,7 @@ struct RecordingView: View {
     }
 
     private var timeString: String {
-        let total = Int(recorder.elapsed)
-        return String(format: "%02d:%02d", total / 60, total % 60)
+        TimeDisplay.elapsed(Int(recorder.elapsed))
     }
 
     private var statusLabel: String {
