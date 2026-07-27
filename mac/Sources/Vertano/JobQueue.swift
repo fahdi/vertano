@@ -295,6 +295,14 @@ final class JobQueue: ObservableObject {
 
     var hasFailedJobs: Bool { RetryPlan.retriableCount(jobs.map(\.status)) > 0 }
 
+    /// Remove a single job, unless it is actively processing (see JobRemoval).
+    func remove(_ id: UUID) {
+        guard let index = jobs.firstIndex(where: { $0.id == id }),
+            JobRemoval.canRemove(jobs[index].status)
+        else { return }
+        jobs.remove(at: index)
+    }
+
     /// Re-queue every failed job and resume processing.
     func retryFailed() {
         for index in jobs.indices {

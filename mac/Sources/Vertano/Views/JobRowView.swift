@@ -3,6 +3,7 @@ import SwiftUI
 
 struct JobRowView: View {
     let job: Job
+    @EnvironmentObject var queue: JobQueue
     @State private var expanded = false
     @State private var copied = false
 
@@ -34,6 +35,16 @@ struct JobRowView: View {
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
                     }
                     .buttonStyle(.borderless)
+                }
+                if JobRemoval.canRemove(job.status) {
+                    Button {
+                        withAnimation { queue.remove(job.id) }
+                    } label: {
+                        Image(systemName: "xmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                    .help("Remove this job from the queue.")
                 }
             }
             .contentShape(Rectangle())
