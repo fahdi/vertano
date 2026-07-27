@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @EnvironmentObject var queue: JobQueue
     @State private var isDropTargeted = false
+    @State private var searchText = ""
     // Owned here (not by the sheet) so an active recording survives the
     // sheet's view identity; dismissal is blocked while recording anyway.
     @StateObject private var recorder = RecordingController()
@@ -26,6 +27,7 @@ struct ContentView: View {
             if queue.jobs.isEmpty {
                 dropZone
             } else {
+                if queue.jobs.count > 5 { searchField }
                 jobList
             }
         }
@@ -139,11 +141,45 @@ struct ContentView: View {
         .contentShape(Rectangle())
     }
 
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            TextField("Filter by file name", text: $searchText)
+                .textFieldStyle(.plain)
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 8)
+        .padding(.top, 8)
+    }
+
+    private var filteredJobs: [Job] {
+        queue.jobs.filter { JobFilter.matches(filename: $0.filename, query: searchText) }
+    }
+
     private var jobList: some View {
         ScrollView {
             LazyVStack(spacing: 1) {
-                ForEach(queue.jobs) { job in
-                    JobRowView(job: job)
+                let jobs = filteredJobs
+                if jobs.isEmpty {
+                    Text("No files match “\(searchText)”.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                } else {
+                    ForEach(jobs) { job in
+                        JobRowView(job: job)
+                    }
                 }
             }
             .padding(.vertical, 8)
