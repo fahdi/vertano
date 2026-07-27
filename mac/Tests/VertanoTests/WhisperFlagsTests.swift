@@ -74,6 +74,27 @@ final class WhisperFlagsTests: XCTestCase {
         XCTAssertFalse(flags.arguments().contains("--prompt"))
     }
 
+    // MARK: - batch profile
+
+    func testBatchUsesAllCoresAndFlashAttention() {
+        let args = WhisperFlags.batch.arguments()
+        XCTAssertTrue(args.contains("-fa"))
+        XCTAssertTrue(consecutive(args, "-t", String(WhisperFlags.defaultThreads)))
+        XCTAssertTrue(args.contains("-sns"))
+    }
+
+    func testBatchKeepsAccurateBeamSearch() {
+        // Batch favors accuracy over latency: real beam search, fallback on.
+        let args = WhisperFlags.batch.arguments()
+        XCTAssertTrue(consecutive(args, "-bs", "5"))
+        XCTAssertTrue(consecutive(args, "-bo", "5"))
+        XCTAssertFalse(args.contains("-nf"))
+    }
+
+    func testBatchDoesNotEnableVAD() {
+        XCTAssertFalse(WhisperFlags.batch.arguments().contains("--vad"))
+    }
+
     // MARK: - helpers
 
     private func consecutive(_ haystack: [String], _ needle: String...) -> Bool {

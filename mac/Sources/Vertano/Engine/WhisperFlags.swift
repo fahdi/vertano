@@ -44,6 +44,19 @@ struct WhisperFlags {
         return args
     }
 
+    /// File-transcription profile: accuracy over latency (real beam search,
+    /// temperature fallback on) but still fast — all cores, flash attention,
+    /// non-speech tokens suppressed. Whisper-cli otherwise defaults to only 4
+    /// threads, leaving most of the machine idle on a batch.
+    static var batch: WhisperFlags {
+        var flags = WhisperFlags()
+        flags.beamSize = 5
+        flags.bestOf = 5
+        flags.noFallback = false
+        flags.vad = false
+        return flags
+    }
+
     static let maxThreads = 16
 
     static func clampThreads(_ requested: Int) -> Int {

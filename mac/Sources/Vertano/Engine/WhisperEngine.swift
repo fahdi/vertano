@@ -208,6 +208,9 @@ struct WhisperEngine: Sendable {
             "-otxt", "-of", outBase.path,
             "-np",
         ]
+        // Use the whole machine (whisper-cli defaults to 4 threads) with an
+        // accuracy-first profile for file transcription.
+        args += WhisperFlags.batch.arguments()
         if translateToEnglish { args.append("--translate") }
 
         let result = try run(whisper, args)
